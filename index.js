@@ -1,5 +1,8 @@
 const Alexa = require('ask-sdk-core');
-var https = require('https');
+
+require('./constants.js');
+const LocationHelper = require('./location_helper.js');
+const EventsHelper = require('./events_helper.js');
 
 var credentials = {
   accessKeyId: 'AKIAI423S3JQDTU5YH5Q',
@@ -9,25 +12,6 @@ var credentials = {
 
 var dynasty = require('dynasty')(credentials);
 var users = dynasty.table('events_user_info');
-
-const messages = {
-    WELCOME: 'Welcome to Events Around Me!  Would you like to see the events around you?',
-    WELCOME_BACK: 'Welcome back to Events Around Me! Here are some events that you might be interested in.',
-    WHAT_DO_YOU_WANT: 'What do you want to ask?',
-    NOTIFY_MISSING_PERMISSIONS: 'Please enable Location permissions in the Amazon Alexa app.',
-    NO_ADDRESS: 'It looks like you don\'t have an address set. You can set your address from the companion app.',
-    ADDRESS_AVAILABLE: 'Here is your full address: ',
-    ERROR: 'Uh Oh. Looks like something went wrong.',
-    LOCATION_FAILURE: 'There was an error with the Device Address API. Please try again.',
-    GOODBYE: 'Bye! Thanks for using the Sample Device Address API Skill!',
-    SEARCH_INITIATE: 'Great! Please wait till I search for events around you.',
-    UNHANDLED: 'This skill doesn\'t support that. Please ask something else.',
-    HELP: 'You can use this skill by asking something like: whats my address?',
-    STOP: 'Bye! Thanks for using the Sample Device Address API Skill!',
-    NAVIGATE_HOME: 'Bye! Thanks for using the Sample Device Address API Skill!'
-  };
-
-const PERMISSIONS = ['read::alexa:device:all:address:country_and_postal_code'];
 
 const LaunchRequest = {
     canHandle(handlerInput) {
@@ -76,14 +60,29 @@ const LaunchRequest = {
     },
 
     async handle(handlerInput) {
-      const { requestEnvelope, serviceClientFactory, responseBuilder } = handlerInput;
 
-      // const response = await httpGet(address.postalCode);
-          // console.log(response);
+      const response = await EventsHelper.getEventsAroundUser(1,2);
+      if(response.count > 0)
+      {
+          console.log("Events around me: " + response.count);
 
-      return handlerInput.responseBuilder
-      .speak("Sorry. I couldn't find any events near you. Try again tomorrow.")
-      .getResponse();
+          return handlerInput.responseBuilder
+          .speak("I found more than 5 events around you. Here's the first one. " + response.results[0].title
+          + "You can say 'Tell me details' to get details about this event or say Next to hear the next one.")
+          .reprompt("You can say 'Tell me details' to get details about this event or say Next to hear the next one.")
+          .getResponse();
+
+        // response.results.forEach(function(event){
+        //     console.log(event.title);
+        // });
+      }
+      else
+      {
+        return handlerInput
+        .speak("Sorry. I could not find any events around you. Looks like everybody is busy in their day jobs.")
+        .reprompt("You can say 'Tell me events from other cities'.")
+        .getResponse();
+      }
     }
   }
 
@@ -96,15 +95,24 @@ const LaunchRequest = {
     },
 
     async handle(handlerInput) {
-      const { requestEnvelope, serviceClientFactory, responseBuilder } = handlerInput;
 
-      // const response = await httpGet(address.postalCode);
-          // console.log(response);
-
-      return handlerInput.responseBuilder
-      .speak(messages.WELCOME_BACK)
-      .reprompt(messages.WHAT_DO_YOU_WANT)
-      .getResponse();
+      const response = await EventsHelper.getEventsAroundUser(1,2);
+      if(response.count > 0)
+      {
+        console.log("Events around me: " + response.count);
+          return handlerInput.responseBuilder
+          .speak("I found several events around you. Here's the first one. " + response.results[0].title
+          + ". You can say 'Tell me details' to get details about this event or say Next to hear the next one.")
+          .reprompt("You can say 'Tell me details' to get details about this event or say Next to hear the next one.")
+          .getResponse();
+      }
+      else
+      {
+        return handlerInput.responseBuilder
+          .speak("Sorry. I could not find any events around you. Looks like everybody is busy in their day jobs.")
+          .reprompt("You can say 'Tell me events from other cities'.")
+          .getResponse();
+      }
     }
   }
 
@@ -138,7 +146,7 @@ const GetAddressIntent = {
         } else {
 
           console.log("Pincode: " + address.postalCode);
-          const user_address = await httpGet(address.postalCode);
+          const user_address = await LocationHelper.getLatLongFromPostalCode(address.postalCode);
           console.log("Here is the complete address: "+ user_address);
 
           return new Promise((resolve, reject) =>
@@ -152,7 +160,6 @@ const GetAddressIntent = {
 
                   users.insert({ 'userid': userid }).then(function(resp)
                   {
-                      console.log(resp);
                       saveUserAddress(userid, user_address, address.postalCode);
 
                       let response = handlerInput.responseBuilder
@@ -204,35 +211,6 @@ const GetAddressIntent = {
         console.log(resp);
         console.log("Saved address details in db successfully.");
       });
-  }
-
-  function httpGet(postalCode) {
-    return new Promise(((resolve, reject) => {
-      var options = {
-          host: 'maps.googleapis.com',
-          port: 443,
-          path: '/maps/api/geocode/json?address='+postalCode+'&key=AIzaSyDRotqxlPDufHEJJzVaLxswP6uS71hCr5c',
-          method: 'GET',
-      };
-
-      const request = https.request(options, (response) => {
-        response.setEncoding('utf8');
-        let returnData = '';
-
-        response.on('data', (chunk) => {
-          returnData += chunk;
-        });
-
-        response.on('end', () => {
-          resolve(JSON.parse(returnData));
-        });
-
-        response.on('error', (error) => {
-          reject(error);
-        });
-      });
-      request.end();
-    }));
   }
 
   const SessionEndedRequest = {
