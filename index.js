@@ -1,8 +1,18 @@
 const Alexa = require('ask-sdk-core');
 var https = require('https');
 
+var credentials = {
+  accessKeyId: 'AKIAI423S3JQDTU5YH5Q',
+  secretAccessKey: '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',
+  region: 'ap-northeast-1'
+};
+
+var dynasty = require('dynasty')(credentials);
+var users = dynasty.table('events_user_info');
+
 const messages = {
     WELCOME: 'Welcome to Events Around Me!  Would you like to see the events around you?',
+    WELCOME_BACK: 'Welcome back to Events Around Me! Here are some events that you might be interested in.',
     WHAT_DO_YOU_WANT: 'What do you want to ask?',
     NOTIFY_MISSING_PERMISSIONS: 'Please enable Location permissions in the Amazon Alexa app.',
     NO_ADDRESS: 'It looks like you don\'t have an address set. You can set your address from the companion app.',
@@ -24,12 +34,39 @@ const LaunchRequest = {
       return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
     },
     handle(handlerInput) {
-      console.log(handlerInput.requestEnvelope.session.user.userId);
-      return handlerInput.responseBuilder.speak(messages.WELCOME)
-        .reprompt(messages.WHAT_DO_YOU_WANT)
-        .getResponse();
-    },
-  };
+
+      const userid = handlerInput.requestEnvelope.session.user.userId;
+      console.log("User Id is : " + userid);
+
+    return new Promise((resolve, reject) =>
+    {
+      users.find( userid ).then(function(user)
+      {
+          if(user)
+          {
+            console.log("Yeah. User exists. Directly show the events around him. ");
+
+            let response = GetEventsAroundMeInstant.handle(handlerInput);
+            resolve(response);
+          }
+          else
+          {
+            console.log("Error. User does not exist. ");
+            console.log("Creating new user...");
+
+            users.insert({ 'userid': userid }).then(function(resp)
+            {
+                console.log(resp);
+                let response = handlerInput.responseBuilder
+                                .speak(messages.WELCOME)
+                                .getResponse();
+                resolve(response);
+            });
+          }
+      });
+    });
+  }
+}
 
   const GetEventsAroundMe = {
     canHandle(handlerInput) {
@@ -46,6 +83,27 @@ const LaunchRequest = {
 
       return handlerInput.responseBuilder
       .speak("Sorry. I couldn't find any events near you. Try again tomorrow.")
+      .getResponse();
+    }
+  }
+
+
+  const GetEventsAroundMeInstant = {
+    canHandle(handlerInput) {
+      const { request } = handlerInput.requestEnvelope;
+
+      return request.type === 'IntentRequest' && request.intent.name === 'GetEventsAroundMeInstant';
+    },
+
+    async handle(handlerInput) {
+      const { requestEnvelope, serviceClientFactory, responseBuilder } = handlerInput;
+
+      // const response = await httpGet(address.postalCode);
+          // console.log(response);
+
+      return handlerInput.responseBuilder
+      .speak(messages.WELCOME_BACK)
+      .reprompt(messages.WHAT_DO_YOU_WANT)
       .getResponse();
     }
   }
@@ -71,6 +129,7 @@ const GetAddressIntent = {
         const { deviceId } = requestEnvelope.context.System.device;
         const deviceAddressServiceClient = serviceClientFactory.getDeviceAddressServiceClient();
         const address = await deviceAddressServiceClient.getCountryAndPostalCode(deviceId);
+        const userid = handlerInput.requestEnvelope.session.user.userId;
 
         console.log('Address successfully retrieved, now responding to user.');
 
@@ -78,13 +137,46 @@ const GetAddressIntent = {
           response = responseBuilder.speak(messages.NO_ADDRESS).getResponse();
         } else {
 
-          const response = await httpGet(address.postalCode);
-          console.log(response);
+          console.log("Pincode: " + address.postalCode);
+          const user_address = await httpGet(address.postalCode);
+          console.log("Here is the complete address: "+ user_address);
 
-          return handlerInput.responseBuilder
-            .speak("Okay. Here is what I found about you. You live in " + response.results[0].formatted_address +
-            ". Do you want me to look for events around you?")
-            .getResponse();
+          return new Promise((resolve, reject) =>
+          {
+            users.find( userid ).then(function(user)
+            {
+                if(!user)
+                {
+                  console.log("Error. User does not exist. ");
+                  console.log("Creating new user...");
+
+                  users.insert({ 'userid': userid }).then(function(resp)
+                  {
+                      console.log(resp);
+                      saveUserAddress(userid, user_address, address.postalCode);
+
+                      let response = handlerInput.responseBuilder
+                      .speak("Okay. Here is what I found about you. You live in " + user_address.results[0].formatted_address +
+                      ". Do you want me to look for events around you?")
+                      .reprompt("Do you want me to look for events around you?")
+                      .getResponse();
+                      resolve(response);
+                  });
+                }
+                else
+                {
+                  saveUserAddress(userid, user_address, address.postalCode)
+
+                  let response = handlerInput.responseBuilder
+                  .speak("Okay. Here is what I found about you. You live in " + user_address.results[0].formatted_address +
+                  ". Do you want me to look for events around you?")
+                  .reprompt("Do you want me to look for events around you?")
+                  .getResponse();;
+                  resolve(response);
+                }
+
+            });
+          });
         }
 
       } catch (error) {
@@ -96,6 +188,23 @@ const GetAddressIntent = {
       }
     },
   };
+
+  function saveUserAddress(userid, userAddress, postalCode)
+  {
+      var lat = userAddress.results[0].geometry.location.lat;
+      var lng = userAddress.results[0].geometry.location.lng;
+
+      console.log("lat: "  + lat);
+      console.log("lng: "  + lng);
+
+      users.update(userid, { 'pincode':postalCode,
+      'lat':lat,
+      'lng':lng }).then(function(resp)
+      {
+        console.log(resp);
+        console.log("Saved address details in db successfully.");
+      });
+  }
 
   function httpGet(postalCode) {
     return new Promise(((resolve, reject) => {
@@ -173,7 +282,7 @@ const GetAddressIntent = {
     handle(handlerInput) {
 
       //Get user address first as it is necessary to fetch events around him.
-      return GetAddressIntent.handle(handlerInput);
+      return GetEventsAroundMe.handle(handlerInput);
     },
   };
 
@@ -241,6 +350,7 @@ exports.handler = skillBuilder
     LaunchRequest,
     GetAddressIntent,
     GetEventsAroundMe,
+    GetEventsAroundMeInstant,
     SessionEndedRequest,
     HelpIntent,
     CancelIntent,
