@@ -1,0 +1,27 @@
+{
+  "name": "events_skill",
+  "version": "1.0.0",
+  "description": "Events Around Me Alexa Skill",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "ask-sdk": "^2.3.0",
+    "dynasty": "^0.3.14",
+    "https": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "events",
+    "events",
+    "around",
+    "me",
+    "places"
+  ],
+  "author": "Purush",
+  "license": "ISC"
+}
