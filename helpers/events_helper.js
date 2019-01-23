@@ -6,7 +6,7 @@ function getEventsAroundUser(lat, lng) {
         var options = {
                 host: 'api.predicthq.com',
                 port: 443,
-                path: '/v1/events/?location_around.origin=18.5580,73.8075&category=concerts,sports',
+                path: '/v1/events/?location_around.origin='+ lat +','+ lng +'&category=concerts,sports,festivals,performing-arts,community',
                 method: 'GET',
                 headers: { "Authorization": "Bearer NOt8cFbjsbe2BvQI7Ax93N1tbBHJk0" }
         };

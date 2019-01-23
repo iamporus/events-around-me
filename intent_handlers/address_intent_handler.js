@@ -46,6 +46,19 @@ const AddressIntent = {
 
                                 DatabaseHelper.saveUserAddress(userid, user_address, address.postalCode);
 
+                                var lat = user_address.results[0].geometry.location.lat;
+                                var lng = user_address.results[0].geometry.location.lng;
+
+                                user = {
+                                    'userid':userid,
+                                    'lat':lat,
+                                    'lng':lng
+                                }
+
+                                const attributes = handlerInput.attributesManager.getSessionAttributes();
+                                attributes.user = user;
+                                handlerInput.attributesManager.setSessionAttributes(attributes);
+
                                 let response = handlerInput.responseBuilder
                                 .speak("Okay. Here is what I found about you. You live in " + user_address.results[0].formatted_address +
                                 ". Do you want me to look for events around this address?")
@@ -55,6 +68,19 @@ const AddressIntent = {
                             });
                         }else{
                             DatabaseHelper.saveUserAddress(userid, user_address, address.postalCode)
+
+                            var lat = user_address.results[0].geometry.location.lat;
+                            var lng = user_address.results[0].geometry.location.lng;
+
+                            user = {
+                                'userid':userid,
+                                'lat':lat,
+                                'lng':lng
+                            }
+
+                            const attributes = handlerInput.attributesManager.getSessionAttributes();
+                            attributes.user = user;
+                            handlerInput.attributesManager.setSessionAttributes(attributes);
 
                             let response = handlerInput.responseBuilder
                             .speak("Okay. Here is what I found about you. You live in " + user_address.results[0].formatted_address +

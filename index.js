@@ -40,8 +40,6 @@ const YesIntent = {
     return request.type === 'IntentRequest' && request.intent.name === 'AMAZON.YesIntent';
   },
   handle(handlerInput) {
-
-    //Get user address first as it is necessary to fetch events around him.
     return EventsIntentHandler.EventsIntent.handle(handlerInput);
   },
 };
@@ -92,6 +90,11 @@ exports.handler = skillBuilder
     LaunchIntentHandler.LaunchRequest,
     AddressIntentHandler.AddressIntent,
     EventsIntentHandler.EventsIntent,
+    EventsIntentHandler.NextEventIntent,
+    EventsIntentHandler.PreviousEventIntent,
+    EventsIntentHandler.RepeatEventIntent,
+    EventsIntentHandler.FlashEventIntent,
+    EventsIntentHandler.DetailsEventIntent,
     SessionIntentHandler.SessionEndedRequest,
     HelpIntent,
     CancelIntent,

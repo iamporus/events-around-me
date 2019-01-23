@@ -8,11 +8,11 @@ global.messages =
     NOTIFY_MISSING_PERMISSIONS: 'Please enable Location permissions in the Amazon Alexa app.',
     NO_ADDRESS: 'It looks like you don\'t have an address set. You can set your address from the companion app.',
     ERROR: 'Uh Oh. Looks like something went wrong.',
-    LOCATION_FAILURE: 'There was an error with the Device Address API. Please try again.',
-    GOODBYE: 'Bye! Thanks for using the Sample Device Address API Skill!',
+    LOCATION_FAILURE: 'There was an error while finding your location. Please try again.',
+    GOODBYE: 'Bye! Thanks for using Events Around Me!',
     UNHANDLED: 'This skill doesn\'t support that. Please ask something else.',
     HELP: 'You can use this skill by asking something like: whats my address?',
-    STOP: 'Bye! Thanks for using the Sample Device Address API Skill!',
+    STOP: 'Bye! Thanks for using Events Around Me!',
     NAVIGATE_HOME: 'Bye! Thanks for using Events Around Me!'
   };
 

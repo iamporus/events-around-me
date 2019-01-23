@@ -41,6 +41,12 @@ const LaunchRequest = {
                 if(user.lat && user.lng){
 
                 console.log("Address is found in DB. Fetching events around him");
+
+                //Passing along user details in the session so as to skip fetching the details from db everytime.
+                const attributes = handlerInput.attributesManager.getSessionAttributes();
+                attributes.user = user;
+                handlerInput.attributesManager.setSessionAttributes(attributes);
+
                 resolve(EventsIntentHandler.EventsIntent.handle(handlerInput));
 
                 }else{
