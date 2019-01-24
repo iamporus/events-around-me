@@ -95,6 +95,7 @@ exports.handler = skillBuilder
     EventsIntentHandler.RepeatEventIntent,
     EventsIntentHandler.FlashEventIntent,
     EventsIntentHandler.DetailsEventIntent,
+    EventsIntentHandler.RandomEventIntent,
     SessionIntentHandler.SessionEndedRequest,
     HelpIntent,
     CancelIntent,

@@ -13,7 +13,9 @@ global.messages =
     UNHANDLED: 'This skill doesn\'t support that. Please ask something else.',
     HELP: 'You can use this skill by asking something like: whats my address?',
     STOP: 'Bye! Thanks for using Events Around Me!',
-    NAVIGATE_HOME: 'Bye! Thanks for using Events Around Me!'
+    NAVIGATE_HOME: 'Bye! Thanks for using Events Around Me!',
+    DETAILS_OR_NEXT_REPROMPT: "You can say \'Tell me details\' to get details about this event or say Next to hear the next one."
   };
 
 global.PERMISSIONS = ['read::alexa:device:all:address:country_and_postal_code'];
+global.CATEGORIES = 'concerts,sports,festivals,performing-arts';

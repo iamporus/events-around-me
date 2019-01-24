@@ -1,12 +1,21 @@
 var https = require('https');
 
-function getEventsAroundUser(lat, lng) {
+function getEventsAroundUser(lat, lng, country, categories, startDate, endDate) {
     return new Promise(((resolve, reject) => {
+
+        let pathVal = '/v1/events/?'
+        +'location_around.origin='+ lat +','+ lng
+        +'&country=' + country
+        +'&category=' + categories
+        +'&start.gte=' + startDate
+        +'&start.lte=' + endDate;
+
+        console.log(pathVal);
 
         var options = {
                 host: 'api.predicthq.com',
                 port: 443,
-                path: '/v1/events/?location_around.origin='+ lat +','+ lng +'&category=concerts,sports,festivals,performing-arts,community',
+                path: pathVal,
                 method: 'GET',
                 headers: { "Authorization": "Bearer NOt8cFbjsbe2BvQI7Ax93N1tbBHJk0" }
         };
