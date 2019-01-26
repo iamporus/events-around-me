@@ -87,17 +87,25 @@ const EventsIntent = {
                     }
                     handlerInput.attributesManager.setSessionAttributes(attributes);
 
+                    var speech = new Speech();
+                    speech.say('Hi. Here are some events that I found in your neighborhood. Here\'s the first one. ')
+                    .pause('1s')
+                    .say(Utils.getShortEventDescription(response.results[0]))
+                    .pause('1s')
+                    .say(' ' + messages.DETAILS_OR_NEXT_REPROMPT);
+
+                    var speechOutput = speech.ssml(true);
+
                     return handlerInput.responseBuilder
-                        .speak("<speak>I found several interesting events around you. Here's the first one. "
-                        + Utils.getShortEventDescription(response.results[0])
-                        + " <break time=\"1s\"/>"+ messages.DETAILS_OR_NEXT_REPROMPT + "</speak>")
+                        .speak(speechOutput)
                         .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
+                        .withSimpleCard(response.results[0].title,Utils.getEventDescriptionForCard(response.results[0]))
                         .getResponse();
                 }
                 else{
                     return handlerInput.responseBuilder
-                        .speak("Sorry. I could not find any events around you. Looks like everybody is busy in their day jobs.")
-                        .reprompt("You can say 'Tell me events from other cities'.")
+                        .speak("Sorry. I could not find any events around you. Seems like a dull week.")
+                        .reprompt("")
                         .getResponse();
                 }
             }
@@ -122,7 +130,7 @@ const NextEventIntent = {
     async handle(handlerInput) {
 
         const attributes = handlerInput.attributesManager.getSessionAttributes();
-        if(attributes){
+        if(attributes && typeof attributes.events !== 'undefined' && attributes.events){
             console.log("Retrieved from Session: " + attributes.index);
             console.log("Retrieved from Session: " + attributes.events.count);
             let index = attributes.index;
@@ -144,7 +152,7 @@ const NextEventIntent = {
                 .getResponse();
         }else{
             return handlerInput.responseBuilder
-            .speak(messages.ERROR)
+            .speak(messages.ERROR_NO_EVENTS_FOUND)
             .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
             .getResponse();
         }
@@ -163,7 +171,7 @@ const PreviousEventIntent = {
     async handle(handlerInput) {
 
         const attributes = handlerInput.attributesManager.getSessionAttributes();
-        if(attributes){
+        if(attributes && typeof attributes.events !== 'undefined' && attributes.events){
             console.log("Retrieved from Session: " + attributes.index);
             console.log("Retrieved from Session: " + attributes.events.count);
             let index = attributes.index;
@@ -185,7 +193,7 @@ const PreviousEventIntent = {
                 .getResponse();
         }else{
             return handlerInput.responseBuilder
-            .speak(messages.ERROR)
+            .speak(messages.ERROR_NO_EVENTS_FOUND)
             .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
             .getResponse();
         }
@@ -204,7 +212,7 @@ const RepeatEventIntent = {
     async handle(handlerInput) {
 
         const attributes = handlerInput.attributesManager.getSessionAttributes();
-        if(attributes){
+        if(attributes && typeof attributes.events !== 'undefined' && attributes.events){
             console.log("Retrieved from Session: " + attributes.index);
             console.log("Retrieved from Session: " + attributes.events.count);
             let index = attributes.index;
@@ -223,7 +231,7 @@ const RepeatEventIntent = {
                 .getResponse();
         }else{
             return handlerInput.responseBuilder
-            .speak(messages.ERROR)
+            .speak(messages.ERROR_NO_EVENTS_FOUND)
             .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
             .getResponse();
         }
@@ -254,8 +262,8 @@ const FlashEventIntent = {
                 attributes.intent_to_cater = 'FlashEventIntent';
                 handlerInput.attributesManager.setSessionAttributes(attributes);
                 return LaunchIntentHandler.handleLaunchRequest(handlerInput);
-            }
-            else{
+
+            }else{
                 console.log("Retrieved from Session: " + attributes.index);
                 console.log("Retrieved from Session: " + attributes.events.count);
                 let index = attributes.index;
@@ -267,31 +275,42 @@ const FlashEventIntent = {
                 handlerInput.attributesManager.setSessionAttributes(attributes);
 
                 const { request } = handlerInput.requestEnvelope;
-                let slots = request.intent.slots;
-                let startDate;
-
-                if(slots){
-                    if(slots.event_date){
-                        //User wants to know events on an exact date.
-                        console.log("date slot..."+ slots.event_date.value);
-                        if(typeof slots.event_date.value !== 'undefined' && slots.event_date.value){
-                            startDate = slots.event_date.value;
-                        }
-                    }
-                }
 
                 var speech = new Speech();
-                if(typeof startDate !== 'undefined' && startDate){
 
-                    speech.say("Okay. Here's all the action on ")
-                    .say(startDate+". ")
-                    .pause('1s');
-                    attributes.events.results.forEach(event => {
-                        speech.say(Utils.getShortEventDescriptionWithoutDate(event));
-                        speech.pause('1s');
-                    });
-                    speech.pause('2s');
+                if(request.intent && request.intent.slots && request.intent.slots.event_date
+                    && typeof request.intent.slots.event_date.value !== 'undefined' && request.intent.slots.event_date.value){
 
+                    let slots = request.intent.slots;
+
+                    //User wants to know events on an exact date.
+                    console.log("date slot..."+ slots.event_date.value);
+                    let startDate = slots.event_date.value;
+                    let endDate = startDate;
+
+                    const response = await EventsHelper.getEventsAroundUser(attributes.user.lat,
+                        attributes.user.lng,
+                        attributes.user.country,
+                        CATEGORIES, startDate, endDate);
+
+                    if(response.results.length > 0){
+
+                        attributes.index = 0;
+                        attributes.events = response.results;
+                        handlerInput.attributesManager.setSessionAttributes(attributes);
+
+                        speech.say("Okay. Here's all the action on ")
+                        .say(Utils.getDateWithoutYear(startDate)+". ")
+                        .pause('1s');
+                        response.results.forEach(event => {
+                            speech.say(Utils.getShortEventDescriptionWithoutDate(event));
+                            speech.pause('1s');
+                        });
+                        speech.pause('2s');
+
+                    }else{
+                        speech.say("Sorry. I couldn't find any events on " + Utils.getFormattedDate(startDate));
+                    }
                 }else{
                     speech.say("Okay. Here's all the action in next 7 days. ")
                     .pause('1s');
@@ -301,6 +320,7 @@ const FlashEventIntent = {
                     });
                     speech.pause('2s');
                 }
+
                 speech.say(messages.DETAILS_OR_APP);
                 var speechOutput = speech.ssml(true);
 
@@ -330,25 +350,77 @@ const DetailsEventIntent = {
     async handle(handlerInput) {
 
         const attributes = handlerInput.attributesManager.getSessionAttributes();
+
         if(attributes){
-            console.log("Retrieved from Session: " + attributes.index);
-            console.log("Retrieved from Session: " + attributes.events.count);
-            let index = attributes.index;
 
-            attributes.index = index;
-            handlerInput.attributesManager.setSessionAttributes(attributes);
+            if(!attributes.user){
+                // user has directly invoked this event without opening the skill
+                // no previous data is present. we don't even know whether user is in db or not
+                // hence forward this event to launch event and pass along an identifier suggesting the
+                // original event to cater is a DetailsEventIntent.
+                attributes.intent_to_cater = 'DetailsEventIntent';
+                handlerInput.attributesManager.setSessionAttributes(attributes);
+                return LaunchIntentHandler.handleLaunchRequest(handlerInput);
 
-            //TODO: create reminder intent
-            let event = attributes.events.results[index];
+            }else{
 
-            var speech = new Speech();
-            speech.say(Utils.getEventDescription(event))
-            .pause('1s')
-            .say('Do you want me to create a reminder for this event?');
-            var speechOutput = speech.ssml(true);
-            return handlerInput.responseBuilder.speak(speechOutput)
-                .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
-                .getResponse();
+                const { request } = handlerInput.requestEnvelope;
+
+                if(request.intent && request.intent.slots && request.intent.slots.event_name
+                    && typeof request.intent.slots.event_name.value !== 'undefined' && request.intent.slots.event_name.value){
+
+                    let slots = request.intent.slots;
+
+                    //User wants to know about a particular event.
+                    console.log("Event..."+ slots.event_name.value);
+                    let event_name = slots.event_name.value;
+
+                    let event_details = await EventsHelper.getAParticularEvent(attributes.user.lat, attributes.user.lng,
+                        encodeURIComponent(slots.event_name.value), attributes.user.country, CATEGORIES);
+
+                    if(typeof event_details.results !== 'undefined' && event_details.results && event_details.results.length > 0 ){
+
+                        let event = event_details.results[0];
+
+                        var speech = new Speech();
+                        speech.say(Utils.getEventDescription(event));
+                        var speechOutput = speech.ssml(true);
+
+                        return handlerInput.responseBuilder.speak(speechOutput)
+                            .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
+                            .getResponse();
+                    }else{
+                        var speech = new Speech();
+                        speech.say('Sorry. I couldn\'t find any event named ' + event_name + ' in your neighborhood.' );
+                        var speechOutput = speech.ssml(true);
+                        return handlerInput.responseBuilder.speak(speechOutput)
+                        .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
+                        .getResponse();
+                    }
+                }
+                else if(attributes.events){
+                    console.log("Retrieved from Session: " + attributes.index);
+                    let index = attributes.index;
+
+                    attributes.index = index;
+                    handlerInput.attributesManager.setSessionAttributes(attributes);
+
+                    let event = attributes.events.results[index];
+
+                    var speech = new Speech();
+                    speech.say(Utils.getEventDescription(event));
+                    var speechOutput = speech.ssml(true);
+
+                    return handlerInput.responseBuilder.speak(speechOutput)
+                    .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
+                    .getResponse();
+
+                }else{
+                    return handlerInput.responseBuilder.speak(messages.ERROR)
+                        .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
+                        .getResponse();
+                }
+            }
         }else{
             return handlerInput.responseBuilder
             .speak(messages.ERROR)

@@ -7,7 +7,7 @@ function getFormattedDate(date) {
 
 function getDateWithoutYear(date){
     var day = moment(date);
-    return day.format('Do') + " "+ day.format('MMMM');
+    return day.format('dddd, Do') + " "+ day.format('MMMM');
 }
 
 function getFormattedTime(date, timezone){
@@ -21,12 +21,21 @@ function getShortEventDescription(event){
     return event.title + ", a " + category + " event; on " + shortenedDate + ". ";
 }
 
+function getEventDescriptionForCard(event){
+    let eventDate = new Date(event.start);
+    let category = event.category;
+    let shortenedDate = getDateWithoutYear(eventDate);
+    let timezone = event.timezone;
+    let time = getFormattedTime(eventDate, timezone);
+    return "Category: " + category + "\n\nScheduled on: " + shortenedDate + "\n\nStarting at: " + time ;
+}
+
 function getShortEventDescriptionWithoutDate(event){
     let eventDate = new Date(event.start);
     let category = event.category;
     let timezone = event.timezone;
     let time = getFormattedTime(eventDate, timezone);
-    return event.title + ", a " + category + " event, starts on " + time + ". ";
+    return event.title + ", a " + category + " event, starting at " + time + ". ";
 }
 
 function getHumanReadableTime(seconds){
@@ -40,7 +49,13 @@ function getEventDescription(event){
     let description = event.description;
     let timezone = event.timezone;
     let time = getFormattedTime(eventDate, timezone);
-    let duration = getHumanReadableTime(event.duration);
+
+    let duration;
+    if(event.duration !== 0){
+        duration = getHumanReadableTime(event.duration);
+    }else{
+        duration = 'unknown duration';
+    }
     let shortenedDate = getDateWithoutYear(eventDate);
 
     if(description.length > 0){
@@ -62,3 +77,4 @@ module.exports.getShortEventDescription = getShortEventDescription;
 module.exports.getEventDescription = getEventDescription;
 module.exports.getHumanReadableTime = getHumanReadableTime;
 module.exports.getShortEventDescriptionWithoutDate = getShortEventDescriptionWithoutDate;
+module.exports.getEventDescriptionForCard = getEventDescriptionForCard;

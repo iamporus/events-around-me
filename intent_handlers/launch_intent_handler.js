@@ -45,16 +45,30 @@ function handleLaunchRequest(handlerInput){
 
             if(user.lat && user.lng){
 
-            console.log("Address is found in DB. Fetching events around him");
+                console.log("Address is found in DB. Fetching events around him");
 
-            //Passing along user details in the session so as to skip fetching the details from db everytime.
-            const attributes = handlerInput.attributesManager.getSessionAttributes();
-            attributes.user = user;
+                //Passing along user details in the session so as to skip fetching the details from db everytime.
+                const attributes = handlerInput.attributesManager.getSessionAttributes();
+                attributes.user = user;
 
-            handlerInput.attributesManager.setSessionAttributes(attributes);
-            resolve(EventsIntentHandler.EventsIntent.handle(handlerInput));
+                if(attributes.intent_to_cater){
+                    if(attributes.intent_to_cater == 'DetailsEventIntent'){
 
+                        handlerInput.attributesManager.setSessionAttributes(attributes);
+                        resolve(EventsIntentHandler.DetailsEventIntent.handle(handlerInput));
+
+                    }else if(attributes.intent_to_cater == 'FlashEventIntent'){
+
+                        handlerInput.attributesManager.setSessionAttributes(attributes);
+                        resolve(EventsIntentHandler.EventsIntent.handle(handlerInput));
+                    }
+                }else{
+
+                    handlerInput.attributesManager.setSessionAttributes(attributes);
+                    resolve(EventsIntentHandler.EventsIntent.handle(handlerInput));
+                }
             }else{
+
                 console.log("Address is not found in DB. Fetching user address first.");
                 resolve(AddressIntentHandler.AddressIntent.handle(handlerInput));
             }

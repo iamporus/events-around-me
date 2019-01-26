@@ -103,7 +103,7 @@ function getResponseForAddress(handlerInput, userid, user_address, address) {
     handlerInput.attributesManager.setSessionAttributes(attributes);
 
     return handlerInput.responseBuilder
-        .speak("Okay. Here is what I found about you. You live in " + user_address.results[0].formatted_address +
+        .speak("Hello again. Here is what I found about you. You live in " + user_address.results[0].formatted_address +
             ". Do you want me to look for events around this address?")
         .reprompt("Do you want me to look for events around you?")
         .getResponse();

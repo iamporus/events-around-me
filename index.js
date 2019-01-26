@@ -44,41 +44,19 @@ const YesIntent = {
   },
 };
 
-const CancelIntent = {
-  canHandle(handlerInput) {
-    const { request } = handlerInput.requestEnvelope;
-
-    return request.type === 'IntentRequest' && request.intent.name === 'AMAZON.CancelIntent';
-  },
-  handle(handlerInput) {
-    return handlerInput.responseBuilder
-      .speak(messages.GOODBYE)
-      .getResponse();
-  },
-};
-
-const NoIntent = {
-  canHandle(handlerInput) {
-    const { request } = handlerInput.requestEnvelope;
-
-    return request.type === 'IntentRequest' && request.intent.name === 'AMAZON.NoIntent';
-  },
-  handle(handlerInput) {
-    return handlerInput.responseBuilder
-      .speak(messages.GOODBYE)
-      .getResponse();
-  },
-};
-
 const StopIntent = {
   canHandle(handlerInput) {
     const { request } = handlerInput.requestEnvelope;
 
-    return request.type === 'IntentRequest' && request.intent.name === 'AMAZON.StopIntent';
+    return request.type === 'IntentRequest' &&
+    (request.intent.name === 'AMAZON.StopIntent'
+    || request.intent.name === 'AMAZON.NoIntent'
+    || request.intent.name === 'AMAZON.CancelIntent');
   },
   handle(handlerInput) {
     return handlerInput.responseBuilder
       .speak(messages.STOP)
+      .reprompt(messages.HELP)
       .getResponse();
   },
 };
@@ -98,10 +76,8 @@ exports.handler = skillBuilder
     EventsIntentHandler.RandomEventIntent,
     SessionIntentHandler.SessionEndedRequest,
     HelpIntent,
-    CancelIntent,
     YesIntent,
     StopIntent,
-    NoIntent,
     UnhandledIntent
   )
   .addErrorHandlers(AddressIntentHandler.AddressError)
