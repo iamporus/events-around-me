@@ -1,5 +1,7 @@
 const EventsHelper = require('./../helpers/events_helper');
+const LaunchIntentHandler =  require('./launch_intent_handler');
 const Utils = require('./../helpers/utils');
+var Speech = require('ssml-builder');
 
 require('./../constants');
 
@@ -15,62 +17,80 @@ const EventsIntent = {
         //fetch user lat lng from session
         const attributes = handlerInput.attributesManager.getSessionAttributes();
         if(attributes){
-            console.log("Retrieved from Session inside GetEventsAroundMe: " + attributes.user.lat);
-            const { request } = handlerInput.requestEnvelope;
 
-            let date = new Date();
-            let startDate = Utils.getFormattedDate(date);
-            var nextWeek = new Date(date.getFullYear(), date.getMonth(), date.getDate()+7);
-            let endDate = Utils.getFormattedDate(nextWeek);
+            if(!attributes.user){
+                // user has directly invoked this event without opening the skill
+                // no previous data is present. we don't even know whether user is in db or not
+                // hence forward this event to launch event.
 
-            let category = CATEGORIES;
+                return LaunchIntentHandler.handleLaunchRequest(handlerInput);
+            }
+            else{
+                console.log("Retrieved from Session inside GetEventsAroundMe: " + attributes.user.lat);
+                const { request } = handlerInput.requestEnvelope;
 
-            if(request.intent){
-                console.log("inside intents...");
-                let slots = request.intent.slots;
-                if(slots){
-                    console.log("inside slots...");
-                    if(slots.event_date){
-                        //User wants to know events on an exact date.
-                        console.log("date slot..."+ slots.event_date.value);
-                        if(typeof slots.event_date.value !== 'undefined' && slots.event_date.value){
-                            startDate = slots.event_date.value;
-                            endDate = startDate;
+                let date = new Date();
+                let startDate = Utils.getFormattedDate(date);
+                var nextWeek = new Date(date.getFullYear(), date.getMonth(), date.getDate()+7);
+                let endDate = Utils.getFormattedDate(nextWeek);
+
+                let category = CATEGORIES;
+
+                if(request.intent){
+                    console.log("inside intents...");
+                    let slots = request.intent.slots;
+                    if(slots){
+                        console.log("inside slots...");
+                        if(slots.event_date){
+                            //User wants to know events on an exact date.
+                            console.log("date slot..."+ slots.event_date.value);
+                            if(typeof slots.event_date.value !== 'undefined' && slots.event_date.value){
+                                startDate = slots.event_date.value;
+                                endDate = startDate;
+                            }
                         }
-                    }
-                    if(slots.event_types){
-                        //User wants to know particular type of event.
-                        console.log("event slot..." + slots.event_types.value);
-                        if(typeof slots.event_types.value !== 'undefined' && slots.event_types.value){
-                            category = slots.event_types.value
+                        if(slots.event_types){
+                            //User wants to know particular type of event.
+                            console.log("event slot..." + slots.event_types.value);
+                            if(typeof slots.event_types.value !== 'undefined' && slots.event_types.value){
+                                category = slots.event_types.value
+                            }
                         }
-                    }
-                    if(slots.event_city){
-                        //User wants to know events in a different city.
-                        console.log("city slot..." + slots.event_city.value);
-                        if(typeof slots.event_city.value !== 'undefined' && slots.event_city.value){
-                            //TODO:
+                        if(slots.event_city){
+                            //User wants to know events in a different city.
+                            console.log("city slot..." + slots.event_city.value);
+                            if(typeof slots.event_city.value !== 'undefined' && slots.event_city.value){
+                                //TODO:
+                            }
                         }
                     }
                 }
-            }
 
-            const response = await EventsHelper.getEventsAroundUser(attributes.user.lat,
-                                                                    attributes.user.lng,
-                                                                    attributes.user.country,
-                                                                    category, startDate, endDate);
+                const response = await EventsHelper.getEventsAroundUser(attributes.user.lat,
+                                                                        attributes.user.lng,
+                                                                        attributes.user.country,
+                                                                        category, startDate, endDate);
                 if(response.count > 0){
                     console.log("Events around me: " + response.count);
 
                     //save the response in the session for handling next/previous intent
                     attributes.events = response;
                     attributes.index = 0;
+
+                    if(attributes.intent_to_cater)
+                    {
+                        if(attributes.intent_to_cater == 'FlashEventIntent')
+                        {
+                            handlerInput.attributesManager.setSessionAttributes(attributes);
+                            return FlashEventIntent.handle(handlerInput);
+                        }
+                    }
                     handlerInput.attributesManager.setSessionAttributes(attributes);
 
                     return handlerInput.responseBuilder
                         .speak("<speak>I found several interesting events around you. Here's the first one. "
                         + Utils.getShortEventDescription(response.results[0])
-                        + ". <break time=\"2s\"/>"+ messages.DETAILS_OR_NEXT_REPROMPT + "</speak>")
+                        + " <break time=\"1s\"/>"+ messages.DETAILS_OR_NEXT_REPROMPT + "</speak>")
                         .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
                         .getResponse();
                 }
@@ -80,6 +100,7 @@ const EventsIntent = {
                         .reprompt("You can say 'Tell me events from other cities'.")
                         .getResponse();
                 }
+            }
         }
         else{
             return handlerInput.responseBuilder
@@ -220,34 +241,74 @@ const FlashEventIntent = {
 
     async handle(handlerInput) {
 
+        console.log("Inside Flash Request...");
         const attributes = handlerInput.attributesManager.getSessionAttributes();
-
+        // console.log("attributes: " + attributes);
         if(attributes){
-            console.log("Retrieved from Session: " + attributes.index);
-            console.log("Retrieved from Session: " + attributes.events.count);
-            let index = attributes.index;
-            if(index != 0)
-            {
-                index = 0;
+
+            if(!attributes.events){
+                // user has directly invoked this event without opening the skill
+                // no previous data is present. we don't even know whether user is in db or not
+                // hence forward this event to launch event and pass along an identifier suggesting the
+                // original event to cater is a Flash-All event.
+                attributes.intent_to_cater = 'FlashEventIntent';
+                handlerInput.attributesManager.setSessionAttributes(attributes);
+                return LaunchIntentHandler.handleLaunchRequest(handlerInput);
             }
+            else{
+                console.log("Retrieved from Session: " + attributes.index);
+                console.log("Retrieved from Session: " + attributes.events.count);
+                let index = attributes.index;
+                if(index != 0){
+                    index = 0;
+                }
 
-            attributes.index = index;
-            handlerInput.attributesManager.setSessionAttributes(attributes);
+                attributes.index = index;
+                handlerInput.attributesManager.setSessionAttributes(attributes);
 
-            let counter = 1;
-            //TODO: append index to events.
-            let events_flash = "<speak>Okay. Here's all the action around you in one go. <break time=\"1s\"/>";
-            attributes.events.results.forEach(event => {
-                events_flash += ""+ Utils.getShortEventDescription(event);
-                events_flash += '. <break time=\"2s\"/>';
+                const { request } = handlerInput.requestEnvelope;
+                let slots = request.intent.slots;
+                let startDate;
 
-            });
-            events_flash += 'That\'s it. You can say ask me to tell events on a particular day or date by saying, \'Tell me the events on this saturday\'.</speak>';
+                if(slots){
+                    if(slots.event_date){
+                        //User wants to know events on an exact date.
+                        console.log("date slot..."+ slots.event_date.value);
+                        if(typeof slots.event_date.value !== 'undefined' && slots.event_date.value){
+                            startDate = slots.event_date.value;
+                        }
+                    }
+                }
 
-            return handlerInput.responseBuilder
-                .speak(events_flash)
-                .reprompt("You can say 'Start over' to listen to all the events one by one.")
-                .getResponse();
+                var speech = new Speech();
+                if(typeof startDate !== 'undefined' && startDate){
+
+                    speech.say("Okay. Here's all the action on ")
+                    .say(startDate+". ")
+                    .pause('1s');
+                    attributes.events.results.forEach(event => {
+                        speech.say(Utils.getShortEventDescriptionWithoutDate(event));
+                        speech.pause('1s');
+                    });
+                    speech.pause('2s');
+
+                }else{
+                    speech.say("Okay. Here's all the action in next 7 days. ")
+                    .pause('1s');
+                    attributes.events.results.forEach(event => {
+                        speech.say(Utils.getShortEventDescription(event));
+                        speech.pause('1s');
+                    });
+                    speech.pause('2s');
+                }
+                speech.say(messages.DETAILS_OR_APP);
+                var speechOutput = speech.ssml(true);
+
+                return handlerInput.responseBuilder
+                    .speak(speechOutput)
+                    .reprompt("You can say 'Start over' to listen to all the events one by one.")
+                    .getResponse();
+            }
         }else{
             return handlerInput.responseBuilder
             .speak(messages.ERROR)
@@ -277,15 +338,15 @@ const DetailsEventIntent = {
             attributes.index = index;
             handlerInput.attributesManager.setSessionAttributes(attributes);
 
-            //TODO: add description when available.
             //TODO: create reminder intent
             let event = attributes.events.results[index];
-            var ts = new Date(event.start);
-            let date = Utils.getDateWithoutYear(ts);
-            let time = Utils.getFormattedTime(ts);
 
-            return handlerInput.responseBuilder.speak(Utils.getEventDescription(event)
-                + " <break time=\"1s\"/> Do you want me to create a reminder for this event?")
+            var speech = new Speech();
+            speech.say(Utils.getEventDescription(event))
+            .pause('1s')
+            .say('Do you want me to create a reminder for this event?');
+            var speechOutput = speech.ssml(true);
+            return handlerInput.responseBuilder.speak(speechOutput)
                 .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
                 .getResponse();
         }else{

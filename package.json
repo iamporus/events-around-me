@@ -9,7 +9,10 @@
   "dependencies": {
     "ask-sdk": "^2.3.0",
     "dynasty": "^0.3.14",
-    "https": "^1.0.0"
+    "https": "^1.0.0",
+    "moment": "^2.24.0",
+    "moment-timezone": "^0.5.23",
+    "ssml-builder": "^0.4.3"
   },
   "repository": {
     "type": "git",
