@@ -51,15 +51,16 @@ const StopIntent = {
     return request.type === 'IntentRequest' &&
     (request.intent.name === 'AMAZON.StopIntent'
     || request.intent.name === 'AMAZON.NoIntent'
+    || request.intent.name === 'AMAZON.NavigateHomeIntent'
     || request.intent.name === 'AMAZON.CancelIntent');
   },
   handle(handlerInput) {
     return handlerInput.responseBuilder
-      .speak(messages.STOP)
-      .reprompt(messages.HELP)
+      .speak(messages.NAVIGATE_HOME)
       .getResponse();
   },
 };
+
 
 const skillBuilder = Alexa.SkillBuilders.custom();
 

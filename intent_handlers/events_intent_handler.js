@@ -99,7 +99,7 @@ const EventsIntent = {
                     return handlerInput.responseBuilder
                         .speak(speechOutput)
                         .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
-                        .withSimpleCard(response.results[0].title,Utils.getEventDescriptionForCard(response.results[0]))
+                        // .withSimpleCard(response.results[0].title,Utils.getEventDescriptionForCard(response.results[0]))
                         .getResponse();
                 }
                 else{
@@ -296,7 +296,7 @@ const FlashEventIntent = {
                     if(response.results.length > 0){
 
                         attributes.index = 0;
-                        attributes.events = response.results;
+                        attributes.events = response;
                         handlerInput.attributesManager.setSessionAttributes(attributes);
 
                         speech.say("Okay. Here's all the action on ")
@@ -384,17 +384,19 @@ const DetailsEventIntent = {
 
                         var speech = new Speech();
                         speech.say(Utils.getEventDescription(event));
+                        speech.pause('1s');
+                        speech.say(messages.NEXT_REPROMPT);
                         var speechOutput = speech.ssml(true);
 
                         return handlerInput.responseBuilder.speak(speechOutput)
-                            .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
+                            .reprompt(messages.NEXT_REPROMPT)
                             .getResponse();
                     }else{
                         var speech = new Speech();
                         speech.say('Sorry. I couldn\'t find any event named ' + event_name + ' in your neighborhood.' );
                         var speechOutput = speech.ssml(true);
                         return handlerInput.responseBuilder.speak(speechOutput)
-                        .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
+                        .reprompt(messages.NEXT_REPROMPT)
                         .getResponse();
                     }
                 }
@@ -409,15 +411,17 @@ const DetailsEventIntent = {
 
                     var speech = new Speech();
                     speech.say(Utils.getEventDescription(event));
+                    speech.pause('1s');
+                    speech.say(messages.NEXT_REPROMPT);
                     var speechOutput = speech.ssml(true);
 
                     return handlerInput.responseBuilder.speak(speechOutput)
-                    .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
+                    .reprompt(messages.NEXT_REPROMPT)
                     .getResponse();
 
                 }else{
                     return handlerInput.responseBuilder.speak(messages.ERROR)
-                        .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
+                        .reprompt(messages.NEXT_REPROMPT)
                         .getResponse();
                 }
             }
@@ -451,16 +455,22 @@ const RandomEventIntent = {
             handlerInput.attributesManager.setSessionAttributes(attributes);
 
             let event = attributes.events.results[rand];
+            var speech = new Speech();
+            speech.say("This one looks interesting. ");
+            speech.pause('1s');
+            speech.say(Utils.getShortEventDescription(event));
+            speech.pause('1s');
+            speech.say(messages.NEXT_REPROMPT);
+            var speechOutput = speech.ssml(true);
 
             return handlerInput.responseBuilder
-                .speak("This one looks interesting. " + Utils.getShortEventDescription(event))
+                .speak(speechOutput)
                 .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
                 .getResponse();
 
         }else{
             return handlerInput.responseBuilder
             .speak(messages.ERROR)
-            .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
             .getResponse();
         }
 
