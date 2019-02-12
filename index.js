@@ -5,6 +5,7 @@ const AddressIntentHandler = require('./intent_handlers/address_intent_handler.j
 const EventsIntentHandler = require('./intent_handlers/events_intent_handler.js');
 const LaunchIntentHandler = require('./intent_handlers/launch_intent_handler.js');
 const SessionIntentHandler = require('./intent_handlers/session_intent_handler.js');
+const RemindersIntentHandler = require('./intent_handlers/reminders_intent_handler.js');
 
 const UnhandledIntent = {
   canHandle() {
@@ -76,6 +77,7 @@ exports.handler = skillBuilder
     EventsIntentHandler.DetailsEventIntent,
     EventsIntentHandler.RandomEventIntent,
     SessionIntentHandler.SessionEndedRequest,
+    RemindersIntentHandler.CreateReminderIntent,
     HelpIntent,
     YesIntent,
     StopIntent,

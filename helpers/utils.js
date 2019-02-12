@@ -14,6 +14,10 @@ function getFormattedTime(date, timezone){
     return moment(new Date(date)).tz(timezone).format('h:mm a');
 }
 
+function getReminderDate(date, timezone){
+    return moment(new Date(date)).tz(timezone).subtract(1, 'hour').toISOString();
+}
+
 function getShortEventDescription(event){
     let eventDate = new Date(event.start);
     let category = event.category;
@@ -73,6 +77,7 @@ function getEventDescription(event){
 module.exports.getFormattedDate = getFormattedDate;
 module.exports.getDateWithoutYear = getDateWithoutYear;
 module.exports.getFormattedTime = getFormattedTime;
+module.exports.getReminderDate = getReminderDate;
 module.exports.getShortEventDescription = getShortEventDescription;
 module.exports.getEventDescription = getEventDescription;
 module.exports.getHumanReadableTime = getHumanReadableTime;

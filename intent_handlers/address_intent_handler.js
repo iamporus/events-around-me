@@ -80,7 +80,6 @@ const AddressIntent = {
 };
 
 function getResponseForAddress(handlerInput, userid, user_address, address) {
-
     var lng = user_address.results[0].geometry.location.lng;
     var lat = user_address.results[0].geometry.location.lat;
     var address_components = user_address.results[0].address_components;
