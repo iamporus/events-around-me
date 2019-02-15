@@ -70,6 +70,7 @@ const AddressIntent = {
             }
 
         } catch (error) {
+            console.log(error);
             if (error.name !== 'ServiceError') {
                 const response = responseBuilder.speak(messages.ERROR).getResponse();
                 return response;

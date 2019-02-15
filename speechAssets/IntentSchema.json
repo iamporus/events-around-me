@@ -1,0 +1,154 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "my events",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": [
+                        "cancel"
+                    ]
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": [
+                        "tell me the instructions",
+                        "how can you help me",
+                        "How can I use this"
+                    ]
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": [
+                        "stop"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.YesIntent",
+                    "samples": [
+                        "yes thanks",
+                        "that will do",
+                        "you heard me",
+                        "right",
+                        "yes please",
+                        "absolutely",
+                        "sure thing",
+                        "yep",
+                        "Yeah sure",
+                        "Yes"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NoIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NextIntent",
+                    "samples": [
+                        "whats next",
+                        "not interested",
+                        "other one",
+                        "next please",
+                        "next one ",
+                        "next"
+                    ]
+                },
+                {
+                    "name": "AMAZON.PreviousIntent",
+                    "samples": [
+                        "last one please",
+                        "tell me the previous one",
+                        "what was the earlier one",
+                        "what was the last one",
+                        "previous please",
+                        "previous",
+                        "go to previous",
+                        "go to previous one"
+                    ]
+                },
+                {
+                    "name": "AMAZON.RepeatIntent",
+                    "samples": [
+                        "start over please",
+                        "can you start over please",
+                        "can you repeat everything",
+                        "start from the beginning",
+                        "repeat",
+                        "start over"
+                    ]
+                },
+                {
+                    "name": "FlashEventIntent",
+                    "slots": [
+                        {
+                            "name": "event_date",
+                            "type": "AMAZON.DATE"
+                        }
+                    ],
+                    "samples": [
+                        "tell all the events",
+                        "whats happening on {event_date}",
+                        "whats happening this {event_date}",
+                        "give me the events on {event_date}",
+                        "how about this {event_date}",
+                        "show me the events on {event_date}",
+                        "tell me the events on {event_date}",
+                        "give me everything",
+                        "give me all of the action",
+                        "start the event briefing",
+                        "start the event flash",
+                        "whats happenning around me",
+                        "tell me all the events"
+                    ]
+                },
+                {
+                    "name": "DetailsEventIntent",
+                    "slots": [
+                        {
+                            "name": "event_name",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "when is {event_name} scheduled",
+                        "when is {event_name} starting",
+                        "tell me about {event_name}",
+                        "tell me details about {event_name}",
+                        "details please",
+                        "tell me more about this one",
+                        "tell me more about this event",
+                        "give me details about it",
+                        "show me the details on this one"
+                    ]
+                },
+                {
+                    "name": "RandomEventIntent",
+                    "slots": [],
+                    "samples": [
+                        "give me another one",
+                        "just give me one event",
+                        "tell me one interesting event",
+                        "give me one interesting event",
+                        "give me a random event",
+                        "suggest me an event"
+                    ]
+                },
+                {
+                    "name": "CreateReminderIntent",
+                    "slots": [],
+                    "samples": [
+                        "create a reminder for this one",
+                        "remind me about this event",
+                        "remind me",
+                        "remind me about this one"
+                    ]
+                }
+            ],
+            "types": []
+        }
+    }
+}
