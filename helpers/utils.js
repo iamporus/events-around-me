@@ -15,7 +15,19 @@ function getFormattedTime(date, timezone){
 }
 
 function getReminderDate(date, timezone){
-    return moment(new Date(date)).tz(timezone).subtract(1, 'hour').toISOString();
+    return moment(new Date(date)).tz(timezone).add(4, 'hour').add(30, 'minutes').toISOString();
+}
+
+function getReminderTime(date, timezone){
+    return moment(new Date(date)).tz(timezone).subtract(1, 'hour').format('h:mm a');
+}
+
+function getEventTime(date, timezone){
+    return moment(new Date(date)).tz(timezone).format('h:mm a');
+}
+
+function getReminderDateForText(date, timezone){
+    return moment(new Date(date)).tz(timezone).subtract(1, 'hour').format('Do MMMM');
 }
 
 function getShortEventDescription(event){
@@ -62,15 +74,9 @@ function getEventDescription(event){
     }
     let shortenedDate = getDateWithoutYear(eventDate);
 
-    if(description.length > 0){
+    return "The event " + event.title + " is a " + category + " event and is scheduled on " + shortenedDate + ". "
+    + "It will start at " + time + " and will run for " + duration + ". ";
 
-        return "The event " + event.title + " is a " + category + " event and is scheduled on " + shortenedDate + ". "
-        + "It will start at " + time + " and will run for " + duration + ". " + "Here's its description. " + description;
-    }
-    else{
-        return "The event " + event.title + " is a " + category + " event and is scheduled on " + shortenedDate + ". "
-        + "It will start at " + time + " and will run for " + duration + ". " + "I couldn't find more details on this.";
-    }
 }
 
 
@@ -78,6 +84,9 @@ module.exports.getFormattedDate = getFormattedDate;
 module.exports.getDateWithoutYear = getDateWithoutYear;
 module.exports.getFormattedTime = getFormattedTime;
 module.exports.getReminderDate = getReminderDate;
+module.exports.getReminderTime = getReminderTime;
+module.exports.getEventTime = getEventTime;
+module.exports.getReminderDateForText = getReminderDateForText;
 module.exports.getShortEventDescription = getShortEventDescription;
 module.exports.getEventDescription = getEventDescription;
 module.exports.getHumanReadableTime = getHumanReadableTime;

@@ -122,7 +122,7 @@ const AddressError = {
         }
         return handlerInput.responseBuilder
             .speak(messages.LOCATION_FAILURE)
-            .reprompt(messages.LOCATION_FAILURE)
+            .reprompt(messages.NEXT_REPROMPT)
             .getResponse();
     },
 };

@@ -27,9 +27,9 @@ const HelpIntent = {
   },
   handle(handlerInput) {
     return handlerInput.responseBuilder
-      .speak(messages.HELP)
-      .reprompt(messages.HELP)
-      .getResponse();
+    .speak(messages.HELP)
+    .reprompt(messages.HELP)
+    .getResponse();
   },
 };
 
@@ -41,6 +41,13 @@ const YesIntent = {
     return request.type === 'IntentRequest' && request.intent.name === 'AMAZON.YesIntent';
   },
   handle(handlerInput) {
+    const attributes = handlerInput.attributesManager.getSessionAttributes();
+        if(attributes){
+            console.log("Retrieved from Session: From Reminder? " + attributes.is_reminder_request);
+            if(attributes.is_reminder_request && typeof attributes.is_reminder_request !== 'undefined'){
+              return RemindersIntentHandler.CreateReminderIntent.handle(handlerInput);
+            }
+        }
     return EventsIntentHandler.EventsIntent.handle(handlerInput);
   },
 };
@@ -51,13 +58,26 @@ const StopIntent = {
 
     return request.type === 'IntentRequest' &&
     (request.intent.name === 'AMAZON.StopIntent'
-    || request.intent.name === 'AMAZON.NoIntent'
     || request.intent.name === 'AMAZON.NavigateHomeIntent'
     || request.intent.name === 'AMAZON.CancelIntent');
   },
   handle(handlerInput) {
     return handlerInput.responseBuilder
       .speak(messages.NAVIGATE_HOME)
+      .getResponse();
+  },
+};
+
+const NoIntent = {
+  canHandle(handlerInput) {
+    const { request } = handlerInput.requestEnvelope;
+
+    return request.type === 'IntentRequest' && request.intent.name === 'AMAZON.NoIntent';
+  },
+  handle(handlerInput) {
+    return handlerInput.responseBuilder
+      .speak(messages.NO_REMINDER_PROMT)
+      .reprompt(messages.NEXT_REPROMPT)
       .getResponse();
   },
 };
@@ -78,8 +98,10 @@ exports.handler = skillBuilder
     EventsIntentHandler.RandomEventIntent,
     SessionIntentHandler.SessionEndedRequest,
     RemindersIntentHandler.CreateReminderIntent,
+    RemindersIntentHandler.CreateReminderWithConsentIntent,
     HelpIntent,
     YesIntent,
+    NoIntent,
     StopIntent,
     UnhandledIntent
   )

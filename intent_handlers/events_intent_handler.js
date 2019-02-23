@@ -99,21 +99,18 @@ const EventsIntent = {
                     return handlerInput.responseBuilder
                         .speak(speechOutput)
                         .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
-                        // .withSimpleCard(response.results[0].title,Utils.getEventDescriptionForCard(response.results[0]))
                         .getResponse();
                 }
                 else{
                     return handlerInput.responseBuilder
-                        .speak("Sorry. I could not find any events around you. Seems like a dull week.")
-                        .reprompt("")
+                        .speak("Sorry. I could not find any events around you. Seems like a dull week. Bye.")
                         .getResponse();
                 }
             }
         }
         else{
             return handlerInput.responseBuilder
-                .speak("Sorry. I could not find any events around you. Looks like everybody is busy in their day jobs.")
-                .reprompt("You can say 'Tell me events from other cities'.")
+                .speak("Sorry. I could not find any events around you. Looks like everybody is busy in their day jobs. Bye")
                 .getResponse();
         }
     }
@@ -309,7 +306,14 @@ const FlashEventIntent = {
                         speech.pause('2s');
 
                     }else{
-                        speech.say("Sorry. I couldn't find any events on " + Utils.getFormattedDate(startDate));
+                        speech.say("Sorry. I couldn't find any events on " + startDate);
+                        speech.say(". You can say tell me all the events to get all the events in next 7 days.");
+                        var speechOutput = speech.ssml(true);
+
+                        return handlerInput.responseBuilder
+                            .speak(speechOutput)
+                            .reprompt("You can ask for any other date.")
+                            .getResponse();
                     }
                 }else{
                     speech.say("Okay. Here's all the action in next 7 days. ")
@@ -385,8 +389,10 @@ const DetailsEventIntent = {
                         var speech = new Speech();
                         speech.say(Utils.getEventDescription(event));
                         speech.pause('1s');
-                        speech.say(messages.NEXT_REPROMPT);
+                        speech.say(messages.REMINDER_PROMT);
                         var speechOutput = speech.ssml(true);
+
+                        attributes.is_reminder_request = 'Yes';
 
                         return handlerInput.responseBuilder.speak(speechOutput)
                             .reprompt(messages.NEXT_REPROMPT)
@@ -394,6 +400,7 @@ const DetailsEventIntent = {
                     }else{
                         var speech = new Speech();
                         speech.say('Sorry. I couldn\'t find any event named ' + event_name + ' in your neighborhood.' );
+                        speech.say(" You can say 'Tell me all the events' to listen to all the events in next 7 days.");
                         var speechOutput = speech.ssml(true);
                         return handlerInput.responseBuilder.speak(speechOutput)
                         .reprompt(messages.NEXT_REPROMPT)
@@ -412,8 +419,10 @@ const DetailsEventIntent = {
                     var speech = new Speech();
                     speech.say(Utils.getEventDescription(event));
                     speech.pause('1s');
-                    speech.say(messages.NEXT_REPROMPT);
+                    speech.say(messages.REMINDER_PROMT);
                     var speechOutput = speech.ssml(true);
+
+                    attributes.is_reminder_request = 'Yes';
 
                     return handlerInput.responseBuilder.speak(speechOutput)
                     .reprompt(messages.NEXT_REPROMPT)

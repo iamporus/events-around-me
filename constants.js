@@ -9,7 +9,7 @@ global.messages =
     NO_ADDRESS: 'It looks like you don\'t have an address set. You can set your address from the companion app.',
     ERROR: 'Uh Oh. Looks like something went wrong.',
     ERROR_NO_EVENTS_FOUND: 'Uh Oh. I don\'t have any events with me right now. Do you want me to search for events around you?',
-    LOCATION_FAILURE: 'There was an error while creating a reminder. Please try again.',
+    LOCATION_FAILURE: 'There was an error while creating a reminder. Please try again. You can say Next to hear the next one OR say Stop to quit.',
     GOODBYE: 'Alright! Have a fun.',
     UNHANDLED: 'Sorry. I don\'t know that one. Please ask me something else.',
     HELP: 'Okay. Here are some phrases that you can say to me. Say, \'What\'s happening on friday?\', to get events on coming Friday. You can say any day of the week. '
@@ -20,7 +20,9 @@ global.messages =
     NEXT_REPROMPT: "You can say Next to hear the next one OR say Stop to quit.",
     DETAILS_OR_APP: 'That\'s it. You can say \'Tell me details\' to know more about the events.',
     NO_REMINDER: 'OK, I won\'t remind you.',
-    REMINDER_CREATED: 'Okay. I will remind you about this event an hour before it starts.'
+    REMINDER_CREATED: 'Okay. I will remind you about this event an hour before it starts. ',
+    REMINDER_PROMT: 'Would you like me to remind you about this event an hour before it starts? ',
+    NO_REMINDER_PROMT: 'Okay. ' + 'You can say Next to hear the next one OR say Stop to quit.'
   };
 
 global.PERMISSIONS = ['read::alexa:device:all:address:country_and_postal_code', 'alexa::alerts:reminders:skill:readwrite'];
