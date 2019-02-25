@@ -103,6 +103,15 @@ async function createReminderForEvent(event, handlerInput){
   console.log("Event start time: " + reminderDate);
   console.log("Event timezone: " + timezone);
 
+  if(!Utils.reminderCanBeCreated(event.start, timezone)){
+
+    return handlerInput.responseBuilder
+      .speak('Sorry. Looks like this event has started already. I cannot create a reminder back in time. '
+      +  messages.NEXT_REPROMPT)
+      .reprompt(messages.NEXT_REPROMPT)
+      .getResponse();
+  }
+
   try {
       const client = handlerInput.serviceClientFactory.getReminderManagementServiceClient();
 
@@ -129,14 +138,20 @@ async function createReminderForEvent(event, handlerInput){
       console.log(JSON.stringify(reminderResponse));
     } catch (error) {
       console.log("Inside catch... ");
+      console.log(error.stack);
       if (error.name !== 'ServiceError') {
         console.log(`error: ${error.stack}`);
         const response = handlerInput.responseBuilder.speak(messages.ERROR)
         .reprompt(messages.NEXT_REPROMPT).getResponse();
         return response;
       }
-      console.log(error.stack);
-      throw error;
+      else{
+        //looks like permission is not granted
+        return handlerInput.responseBuilder
+            .speak(messages.NOTIFY_MISSING_PERMISSIONS)
+            .withAskForPermissionsConsentCard(PERMISSIONS)
+            .getResponse();
+      }
   }
 
   console.log("Returning from the intent... ");

@@ -75,7 +75,13 @@ const AddressIntent = {
                 const response = responseBuilder.speak(messages.ERROR).getResponse();
                 return response;
             }
-            throw error;
+            else{
+                //looks like permission is not granted
+                return handlerInput.responseBuilder
+                    .speak(messages.NOTIFY_MISSING_PERMISSIONS)
+                    .withAskForPermissionsConsentCard(PERMISSIONS)
+                    .getResponse();
+              }
         }
     },
 };

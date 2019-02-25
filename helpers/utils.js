@@ -29,6 +29,12 @@ function getEventTime(date, timezone){
 function getReminderDateForText(date, timezone){
     return moment(new Date(date)).tz(timezone).subtract(1, 'hour').format('Do MMMM');
 }
+function reminderCanBeCreated(eventDate, timezone){
+    var currentDate = moment(new Date()).tz(timezone);
+    var day1 = moment(new Date(eventDate)).tz(timezone);
+    var duration = moment.duration(currentDate.diff(day1));
+    return (day1.isAfter(currentDate) && duration.asHours() < -1)
+}
 
 function getShortEventDescription(event){
     let eventDate = new Date(event.start);
@@ -92,3 +98,4 @@ module.exports.getEventDescription = getEventDescription;
 module.exports.getHumanReadableTime = getHumanReadableTime;
 module.exports.getShortEventDescriptionWithoutDate = getShortEventDescriptionWithoutDate;
 module.exports.getEventDescriptionForCard = getEventDescriptionForCard;
+module.exports.reminderCanBeCreated = reminderCanBeCreated;
