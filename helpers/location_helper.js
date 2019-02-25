@@ -1,11 +1,11 @@
 var https = require('https');
 
-function getLatLongFromPostalCode(postalCode) {
+function getLatLongFromAddress(address) {
     return new Promise(((resolve, reject) => {
       var options = {
           host: 'maps.googleapis.com',
           port: 443,
-          path: '/maps/api/geocode/json?address='+postalCode+'&key=AIzaSyDRotqxlPDufHEJJzVaLxswP6uS71hCr5c',
+          path: '/maps/api/geocode/json?address='+address+'&key=AIzaSyDRotqxlPDufHEJJzVaLxswP6uS71hCr5c',
           method: 'GET',
       };
 
@@ -29,4 +29,4 @@ function getLatLongFromPostalCode(postalCode) {
     }));
   }
 
-  module.exports.getLatLongFromPostalCode = getLatLongFromPostalCode;
+module.exports.getLatLongFromAddress = getLatLongFromAddress;

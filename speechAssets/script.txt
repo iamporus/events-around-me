@@ -1,0 +1,141 @@
+
+
+User: Open My events
+
+Alexa: Hi, welcome to My events. Here you can find all the interesting events happening in your city. Events like concerts, plays, exhibitions, festivals and much more. To find the closest events happening around you, tell me, in which city you live.
+
+User: Pune
+
+Alexa: Do you live in Punai, Maharashtra?
+
+User: No
+
+Alexa: Okay. Can you tell me the name of your city once again?
+
+User: Pune
+
+Alexa: Okay. Is it Pune, Maharashtra?
+
+User: Yes
+
+Alexa: Great. Here are some upcoming events that I found happening in Pune city.
+
+    Event 1
+
+    Does this event sound interesting?
+
+User: No.
+
+Alexa: Okay. Here’s the next one.
+
+    Event 2
+
+	Does this looks interesting?
+
+User: No.
+
+Alexa: Alright. Here’s the next one.
+
+    Event 3
+
+    How about this one?
+
+User: No
+
+Alexa: Okay. Do you want me to tell you next 3 events in Pune city?
+
+User: No
+
+Alexa: Okay. Do you want me to look for events in some other city?
+
+User: No
+
+Alexa: No problem. Thanks for using My events. Have a good day.
+
+-------------------------------------------------------------------------
+
+User: Open My events
+
+Alexa: Hi, welcome to My events. Do you want me to look for upcoming events in Pune?
+
+User: No
+
+Alexa: Okay. Do you want me to look for events in some other city?
+
+User: Yes
+
+Alexa: Okay. Which city are you interested in?
+
+User: Mumbai
+
+Alexa: Is it Mumbai, Maharashtra?
+
+User: Yes
+
+Alexa: Alright, Here are some upcoming events in Mumbai.
+
+	Event 1
+
+	Does this sound interesting?
+
+User: Yes
+
+Alexa: Great. Here are some more details about it.
+
+	Event details.
+
+    Do you want me remind you about this event before it starts?
+
+User: No
+
+Alexa: 	Okay. Let’s move to next event then.
+
+    Event 2
+
+    Does this sound interesting?
+
+User: Yes
+
+Alexa: Great. Here’s how it goes.
+
+    Event 2 details
+
+    Should I remind you about this event before it starts?
+
+User: yes
+
+Alexa: Okay. The event ‘Event 2’ starts on ‘Date’. Do you want me to remind you, say around Time -1 hour ’?
+
+User: No
+
+Alexa: Okay. When should i remind you then?
+
+User: Around 2 clock.
+
+Alexa: Just to confirm. Do you want me to remind you on 2:00 Pm on ‘Date’ about this event?
+
+User: Yes.
+
+Alexa: Great. Created a reminder for event ‘Event 2’.
+
+    Do you want to continue looking for more events?
+
+User: yes
+
+Alexa: Great. Here are some more events for you.
+
+    Event 3
+
+    Does this sound interesting?
+
+User: No
+
+Alexa: 	Okay. Do you want me to fetch next 3 events?
+
+User: No
+
+Alexa: Alright. Thanks for using My Events. Have a great day. Bye.
+
+
+---------------------------------------------------------------------------------------------------------
+

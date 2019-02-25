@@ -6,6 +6,7 @@ const EventsIntentHandler = require('./intent_handlers/events_intent_handler.js'
 const LaunchIntentHandler = require('./intent_handlers/launch_intent_handler.js');
 const SessionIntentHandler = require('./intent_handlers/session_intent_handler.js');
 const RemindersIntentHandler = require('./intent_handlers/reminders_intent_handler.js');
+const ErrorHandler = require('./intent_handlers/error_handler.js');
 
 const UnhandledIntent = {
   canHandle() {
@@ -89,6 +90,7 @@ exports.handler = skillBuilder
   .addRequestHandlers(
     LaunchIntentHandler.LaunchRequest,
     AddressIntentHandler.AddressIntent,
+    AddressIntentHandler.GetCityNameIntent,
     EventsIntentHandler.EventsIntent,
     EventsIntentHandler.NextEventIntent,
     EventsIntentHandler.PreviousEventIntent,
@@ -105,6 +107,6 @@ exports.handler = skillBuilder
     StopIntent,
     UnhandledIntent
   )
-  .addErrorHandlers(AddressIntentHandler.AddressError)
+  .addErrorHandlers(ErrorHandler.MissingPermissionsError)
   .withApiClient(new Alexa.DefaultApiClient())
   .lambda();

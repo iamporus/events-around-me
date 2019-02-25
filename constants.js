@@ -1,9 +1,7 @@
 global.messages =
 {
     WELCOME: 'Welcome to My Events. Here you can find all the action happening in your neighborhood.'
-    + ' Like concerts, plays, exhibitions, sports events and many more. For that, I need to know the zip code of your area, '
-    + 'so that I can find the nearest events around you. Also, I can create reminders for all those interesting events around you so that you don\'t miss any of them.' 
-    + ' So, please proceed to the Amazon Alexa companion app and enable location and reminders permissions for My Events.',
+    + ' Like concerts, plays, exhibitions, sports events and many more. To find the closest events happening around you, please tell me, the name of the city you live',
     WELCOME_BACK: 'Welcome back to My Events! Here are some events that you might be interested in.',
     WHAT_DO_YOU_WANT: 'What do you want to ask?',
     NOTIFY_MISSING_PERMISSIONS: 'Uh Oh. Looks like you haven\'t enabled Location or Reminders permissions for me yet. Please proceed to the Amazon Alexa app and enable Location and Reminder permissions for My Events skill.' 
