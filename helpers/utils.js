@@ -85,6 +85,9 @@ function getEventDescription(event){
 
 }
 
+function randomize(array){
+    return array[Math.floor(Math.random() * array.length)];
+}
 
 module.exports.getFormattedDate = getFormattedDate;
 module.exports.getDateWithoutYear = getDateWithoutYear;
@@ -99,3 +102,4 @@ module.exports.getHumanReadableTime = getHumanReadableTime;
 module.exports.getShortEventDescriptionWithoutDate = getShortEventDescriptionWithoutDate;
 module.exports.getEventDescriptionForCard = getEventDescriptionForCard;
 module.exports.reminderCanBeCreated = reminderCanBeCreated;
+module.exports.randomize = randomize;

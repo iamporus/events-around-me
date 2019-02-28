@@ -49,7 +49,7 @@ function getAParticularEvent(lat, lng, eventName, country, categories ) {
         +'&q='+ eventName
         +'&country=' + country
         +'&category=' + categories
-        +'&within=500km@' + lat +','+ lng;
+        +'&within=100km@' + lat +','+ lng;
 
         console.log(pathVal);
 

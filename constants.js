@@ -28,8 +28,21 @@ global.messages =
     CHANGE_CITY: 'Okay. Do you want me to look for events in some other city?',
     CHANGE_CITY_RE: 'Do you want me to look for events in some other city?',
     NEW_CITY: 'Great. Which city are you interested in?',
-    NEW_CITY_RE: 'Which city are you interested in?'
+    NEW_CITY_RE: 'Which city are you interested in?',
+    INTERESTING_RE: 'Does this event sound interesting?'
   };
+
+global.interesting = [ 'Does this event sound interesting?', 'Does this looks interesting?', 'Want to know more about it?', 'Should I tell you more about this one?']
 
 global.PERMISSIONS = ['read::alexa:device:all:address:country_and_postal_code', 'alexa::alerts:reminders:skill:readwrite'];
 global.CATEGORIES = 'concerts,sports,festivals,performing-arts';
+
+global.ActionToPerform = {
+
+  EVENT_LOOKUP_DEFAULT_CITY: 0,
+  EVENT_LOOKUP_NEW_CITY: 1,
+  CONFIRM_NEW_CITY: 2,
+  CREATE_REMINDER: 3,
+  EVENT_DETAILS: 4
+
+};

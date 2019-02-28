@@ -44,31 +44,45 @@ const YesIntent = {
   },
   handle(handlerInput) {
     const attributes = handlerInput.attributesManager.getSessionAttributes();
-        if(attributes){
-            if(attributes.is_city_name_confirmation && typeof attributes.is_city_name_confirmation !== 'undefined'){
-              //Said yes for confirming found city
-              //Save user city in db
-              let user = attributes.user;
-              DatabaseHelper.saveUserAddress(user.userid, user.lat, user.lng, user.city, 'NA', user.country);
+    if(attributes && typeof attributes.action_to_perform !== 'undefined'){
 
-              return EventsIntentHandler.EventsIntent.handle(handlerInput);
-            }
-            else if(attributes.is_reminder_request && typeof attributes.is_reminder_request !== 'undefined'){
-              //Said yes for creating reminder
-              return RemindersIntentHandler.CreateReminderIntent.handle(handlerInput);
-            }
-            else if(attributes.look_events_in_another_city && typeof attributes.look_events_in_another_city !== 'undefined'){
-              //Said yes for lookup of events in another city
-              return handlerInput.responseBuilder
-              .speak(messages.NEW_CITY)
-              .reprompt(messages.NEW_CITY_RE)
-              .getResponse();
-            }
-            else if(attributes.default_city_event_confirmation && typeof attributes.default_city_event_confirmation !== 'undefined'){
-              //Said yes for lookup of events in default city
-              return EventsIntentHandler.EventsIntent.handle(handlerInput);
-            }
+      console.log("Inside YESIntent. Action to Perform: " + attributes.action_to_perform);
+
+      switch(attributes.action_to_perform){
+        case ActionToPerform.EVENT_LOOKUP_DEFAULT_CITY:{
+
+          //Said yes for lookup of events in default city
+          return EventsIntentHandler.EventsIntent.handle(handlerInput);
         }
+        case ActionToPerform.EVENT_LOOKUP_NEW_CITY:{
+
+          //Said yes for lookup of events in another city
+          return handlerInput.responseBuilder
+            .speak(messages.NEW_CITY)
+            .reprompt(messages.NEW_CITY_RE)
+            .getResponse();
+        }
+        case ActionToPerform.CONFIRM_NEW_CITY:{
+
+          //Said yes for confirming found city
+          //Save user city in db
+          let user = attributes.user;
+          DatabaseHelper.saveUserAddress(user.userid, user.lat, user.lng, user.city, 'NA', user.country);
+
+          return EventsIntentHandler.EventsIntent.handle(handlerInput);
+        }
+        case ActionToPerform.CREATE_REMINDER:{
+
+          //Said yes for creating reminder
+          return RemindersIntentHandler.CreateReminderIntent.handle(handlerInput);
+        }
+        case ActionToPerform.EVENT_DETAILS:{
+
+          //Said yes for telling the details
+          return EventsIntentHandler.DetailsEventIntent.handle(handlerInput);
+        }
+      }
+    }
     return EventsIntentHandler.EventsIntent.handle(handlerInput);
   },
 };
@@ -97,33 +111,54 @@ const NoIntent = {
   },
   handle(handlerInput) {
     const attributes = handlerInput.attributesManager.getSessionAttributes();
-        if(attributes ){
-          if(attributes.is_reminder_request && typeof attributes.is_reminder_request !== 'undefined'){
-            return handlerInput.responseBuilder
-              .speak(messages.NO_REMINDER_PROMT)
-              .reprompt(messages.NEXT_REPROMPT)
-              .getResponse();
-          }
-          else if(attributes.is_city_name_confirmation && typeof attributes.is_city_name_confirmation !== 'undefined'){
-            return handlerInput.responseBuilder
-              .speak(messages.REPEAT_CITY_NAME)
-              .reprompt(messages.REPEAT_CITY_NAME_RE)
-              .getResponse();
-          }
-          else if(attributes.default_city_event_confirmation && typeof attributes.default_city_event_confirmation !== 'undefined'){
+    if(attributes && typeof attributes.action_to_perform !== 'undefined'){
 
-            //Said No for lookup of events in default city
-            //Ask whether he wants to look events in other city
-            attributes.look_events_in_another_city = true;
-            handlerInput.attributesManager.setSessionAttributes(attributes);
+      console.log("Inside NOIntent. Action to Perform: " + attributes.action_to_perform);
 
-            return handlerInput.responseBuilder
-              .speak(messages.CHANGE_CITY)
-              .reprompt(messages.CHANGE_CITY_RE)
-              .getResponse();
-          }
+      switch(attributes.action_to_perform){
+        case ActionToPerform.EVENT_LOOKUP_DEFAULT_CITY:{
+
+          //Said No for lookup of events in default city
+          //Ask whether he wants to look events in other city
+          attributes.action_to_perform = ActionToPerform.EVENT_LOOKUP_NEW_CITY;
+          handlerInput.attributesManager.setSessionAttributes(attributes);
+
+          return handlerInput.responseBuilder
+            .speak(messages.CHANGE_CITY)
+            .reprompt(messages.CHANGE_CITY_RE)
+            .getResponse();
         }
+        case ActionToPerform.EVENT_LOOKUP_NEW_CITY:{
 
+          //Said No for lookup of events in other city as well
+          //Say Sayonara.
+          return StopIntent.handle(handlerInput);
+        }
+        case ActionToPerform.CONFIRM_NEW_CITY:{
+
+          //Said No for confirming found city
+          return handlerInput.responseBuilder
+            .speak(messages.REPEAT_CITY_NAME)
+            .reprompt(messages.REPEAT_CITY_NAME_RE)
+            .getResponse();
+        }
+        case ActionToPerform.CREATE_REMINDER:{
+
+          //Said No for creating reminder
+          return handlerInput.responseBuilder
+            .speak(messages.NO_REMINDER_PROMT)
+            .reprompt(messages.NEXT_REPROMPT)
+            .getResponse();
+        }
+        case ActionToPerform.EVENT_DETAILS:{
+
+          //Said No for telling the details
+          return EventsIntentHandler.NextEventIntent.handle(handlerInput);
+        }
+      }
+    }
+
+    return StopIntent.handle(handlerInput);
   },
 };
 
@@ -139,7 +174,6 @@ exports.handler = skillBuilder
     EventsIntentHandler.NextEventIntent,
     EventsIntentHandler.PreviousEventIntent,
     EventsIntentHandler.RepeatEventIntent,
-    EventsIntentHandler.FlashEventIntent,
     EventsIntentHandler.DetailsEventIntent,
     EventsIntentHandler.RandomEventIntent,
     SessionIntentHandler.SessionEndedRequest,

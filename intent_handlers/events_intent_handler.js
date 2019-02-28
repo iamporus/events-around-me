@@ -49,20 +49,6 @@ const EventsIntent = {
                                 endDate = startDate;
                             }
                         }
-                        if(slots.event_types){
-                            //User wants to know particular type of event.
-                            console.log("event slot..." + slots.event_types.value);
-                            if(typeof slots.event_types.value !== 'undefined' && slots.event_types.value){
-                                category = slots.event_types.value
-                            }
-                        }
-                        if(slots.event_city){
-                            //User wants to know events in a different city.
-                            console.log("city slot..." + slots.event_city.value);
-                            if(typeof slots.event_city.value !== 'undefined' && slots.event_city.value){
-                                //TODO:
-                            }
-                        }
                     }
                 }
 
@@ -77,22 +63,29 @@ const EventsIntent = {
                     attributes.events = response;
                     attributes.index = 0;
 
-                    if(attributes.intent_to_cater)
-                    {
-                        if(attributes.intent_to_cater == 'FlashEventIntent')
-                        {
-                            handlerInput.attributesManager.setSessionAttributes(attributes);
-                            return FlashEventIntent.handle(handlerInput);
-                        }
-                    }
                     handlerInput.attributesManager.setSessionAttributes(attributes);
 
                     var speech = new Speech();
-                    speech.say('Alright. Here are some events that I found in '+ attributes.user.city + '. Here\'s the first one. ')
+
+                    if(response.count == 1){
+
+                        attributes.action_to_perform = ActionToPerform.CREATE_REMINDER;
+
+                        speech.say('Okay. I found just one event happening in '+ attributes.user.city + ' this week. Here\'s how it goes. ')
                         .pause('1s')
                         .say(Utils.getShortEventDescription(response.results[0]))
                         .pause('1s')
-                        .say(' ' + messages.DETAILS_OR_NEXT_REPROMPT);
+                        .say(' ' + messages.REMINDER_PROMT);
+                    }else{
+
+                        attributes.action_to_perform = ActionToPerform.EVENT_DETAILS;
+
+                        speech.say('Alright. Here are some events that I found in '+ attributes.user.city + ' this week. Here\'s the first one. ')
+                            .pause('1s')
+                            .say(Utils.getShortEventDescription(response.results[0]))
+                            .pause('1s')
+                            .say(' ' + Utils.randomize(interesting));
+                    }
 
                     var speechOutput = speech.ssml(true);
 
@@ -102,8 +95,15 @@ const EventsIntent = {
                         .getResponse();
                 }
                 else{
+
+                    //Ask whether he wants to look events in other city
+                    attributes.action_to_perform = ActionToPerform.EVENT_LOOKUP_NEW_CITY;
+
+                    handlerInput.attributesManager.setSessionAttributes(attributes);
+
                     return handlerInput.responseBuilder
-                        .speak("Sorry. I could not find any events around you. Seems like a dull week. Bye.")
+                        .speak("Sorry. I could not find any events in "+ attributes.user.city+". " + messages.CHANGE_CITY_RE)
+                        .reprompt(messages.CHANGE_CITY_RE)
                         .getResponse();
                 }
             }
@@ -131,20 +131,23 @@ const NextEventIntent = {
             console.log("Retrieved from Session: " + attributes.index);
             console.log("Retrieved from Session: " + attributes.events.count);
             let index = attributes.index;
+            index = index + 1;
+            attributes.index = index;
 
-            if(index == 9)
+            if(index == attributes.events.count)
             {
                 return handlerInput.responseBuilder
                 .speak("Oh! that was the last one on my list. You can say Repeat to start over.")
                 .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
                 .getResponse();
             }
-            index = index + 1;
-            attributes.index = index;
+
+            attributes.action_to_perform = ActionToPerform.EVENT_DETAILS;
             handlerInput.attributesManager.setSessionAttributes(attributes);
 
             return handlerInput.responseBuilder
-                .speak("Here's the next one. " + Utils.getShortEventDescription(attributes.events.results[index]))
+                .speak("Okay. Here's the next one. " + Utils.getShortEventDescription(attributes.events.results[index])
+                + ' ' + Utils.randomize(interesting))
                 .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
                 .getResponse();
         }else{
@@ -236,113 +239,6 @@ const RepeatEventIntent = {
     }
 }
 
-const FlashEventIntent = {
-
-    canHandle(handlerInput) {
-        const { request } = handlerInput.requestEnvelope;
-
-        return request.type === 'IntentRequest' && request.intent.name === 'FlashEventIntent';
-    },
-
-    async handle(handlerInput) {
-
-        console.log("Inside Flash Request...");
-        const attributes = handlerInput.attributesManager.getSessionAttributes();
-        // console.log("attributes: " + attributes);
-        if(attributes){
-
-            if(!attributes.events){
-                // user has directly invoked this event without opening the skill
-                // no previous data is present. we don't even know whether user is in db or not
-                // hence forward this event to launch event and pass along an identifier suggesting the
-                // original event to cater is a Flash-All event.
-                attributes.intent_to_cater = 'FlashEventIntent';
-                handlerInput.attributesManager.setSessionAttributes(attributes);
-                return LaunchIntentHandler.handleLaunchRequest(handlerInput);
-
-            }else{
-                console.log("Retrieved from Session: " + attributes.index);
-                console.log("Retrieved from Session: " + attributes.events.count);
-                let index = attributes.index;
-                if(index != 0){
-                    index = 0;
-                }
-
-                attributes.index = index;
-                handlerInput.attributesManager.setSessionAttributes(attributes);
-
-                const { request } = handlerInput.requestEnvelope;
-
-                var speech = new Speech();
-
-                if(request.intent && request.intent.slots && request.intent.slots.event_date
-                    && typeof request.intent.slots.event_date.value !== 'undefined' && request.intent.slots.event_date.value){
-
-                    let slots = request.intent.slots;
-
-                    //User wants to know events on an exact date.
-                    console.log("date slot..."+ slots.event_date.value);
-                    let startDate = slots.event_date.value;
-                    let endDate = startDate;
-
-                    const response = await EventsHelper.getEventsAroundUser(attributes.user.lat,
-                        attributes.user.lng,
-                        attributes.user.country,
-                        CATEGORIES, startDate, endDate);
-
-                    if(response.results.length > 0){
-
-                        attributes.index = 0;
-                        attributes.events = response;
-                        handlerInput.attributesManager.setSessionAttributes(attributes);
-
-                        speech.say("Okay. Here's all the action on ")
-                        .say(Utils.getDateWithoutYear(startDate)+". ")
-                        .pause('1s');
-                        response.results.forEach(event => {
-                            speech.say(Utils.getShortEventDescriptionWithoutDate(event));
-                            speech.pause('1s');
-                        });
-                        speech.pause('2s');
-
-                    }else{
-                        speech.say("Sorry. I couldn't find any events on " + startDate);
-                        speech.say(". You can say tell me all the events to get all the events in next 7 days.");
-                        var speechOutput = speech.ssml(true);
-
-                        return handlerInput.responseBuilder
-                            .speak(speechOutput)
-                            .reprompt("You can ask for any other date.")
-                            .getResponse();
-                    }
-                }else{
-                    speech.say("Okay. Here's all the action in next 7 days. ")
-                    .pause('1s');
-                    attributes.events.results.forEach(event => {
-                        speech.say(Utils.getShortEventDescription(event));
-                        speech.pause('1s');
-                    });
-                    speech.pause('2s');
-                }
-
-                speech.say(messages.DETAILS_OR_APP);
-                var speechOutput = speech.ssml(true);
-
-                return handlerInput.responseBuilder
-                    .speak(speechOutput)
-                    .reprompt("You can say 'Start over' to listen to all the events one by one.")
-                    .getResponse();
-            }
-        }else{
-            return handlerInput.responseBuilder
-            .speak(messages.ERROR)
-            .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
-            .getResponse();
-        }
-
-    }
-}
-
 const DetailsEventIntent = {
 
     canHandle(handlerInput) {
@@ -392,7 +288,7 @@ const DetailsEventIntent = {
                         speech.say(messages.REMINDER_PROMT);
                         var speechOutput = speech.ssml(true);
 
-                        attributes.is_reminder_request = 'Yes';
+                        attributes.action_to_perform = ActionToPerform.CREATE_REMINDER;
 
                         return handlerInput.responseBuilder.speak(speechOutput)
                             .reprompt(messages.NEXT_REPROMPT)
@@ -400,11 +296,12 @@ const DetailsEventIntent = {
                     }else{
                         var speech = new Speech();
                         speech.say('Sorry. I couldn\'t find any event named ' + event_name + ' in your neighborhood.' );
-                        speech.say(" You can say 'Tell me all the events' to listen to all the events in next 7 days.");
+                        speech.say(" You can say 'Tell me all the events' to listen to all the events in upcoming week.");
                         var speechOutput = speech.ssml(true);
+
                         return handlerInput.responseBuilder.speak(speechOutput)
-                        .reprompt(messages.NEXT_REPROMPT)
-                        .getResponse();
+                            .reprompt(messages.NEXT_REPROMPT)
+                            .getResponse();
                     }
                 }
                 else if(attributes.events){
@@ -493,7 +390,6 @@ module.exports.EventsIntent = EventsIntent;
 module.exports.NextEventIntent = NextEventIntent;
 module.exports.PreviousEventIntent = PreviousEventIntent;
 module.exports.RepeatEventIntent = RepeatEventIntent;
-module.exports.FlashEventIntent = FlashEventIntent;
 module.exports.DetailsEventIntent = DetailsEventIntent;
 module.exports.RandomEventIntent = RandomEventIntent;
 

@@ -1,6 +1,5 @@
 const DatabaseHelper = require('../helpers/database_helper.js');
 const EventsIntentHandler = require('./events_intent_handler.js');
-const AddressIntentHandler = require('./address_intent_handler.js');
 
 require('./../constants.js');
 const Speech = require('ssml-builder');
@@ -53,14 +52,11 @@ function handleLaunchRequest(handlerInput){
                         handlerInput.attributesManager.setSessionAttributes(attributes);
                         resolve(EventsIntentHandler.DetailsEventIntent.handle(handlerInput));
 
-                    }else if(attributes.intent_to_cater == 'FlashEventIntent'){
-
-                        handlerInput.attributesManager.setSessionAttributes(attributes);
-                        resolve(EventsIntentHandler.EventsIntent.handle(handlerInput));
                     }
                 }else{
                     const attributes = handlerInput.attributesManager.getSessionAttributes();
-                    attributes.default_city_event_confirmation = true;
+                    attributes.action_to_perform = ActionToPerform.EVENT_LOOKUP_DEFAULT_CITY;
+
                     handlerInput.attributesManager.setSessionAttributes(attributes);
 
                     var speech = new Speech();

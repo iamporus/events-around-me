@@ -157,9 +157,11 @@ const GetCityNameIntent = {
             console.log("Got this city from user..."+ city_name);
 
             const attributes = handlerInput.attributesManager.getSessionAttributes();
-            attributes.is_city_name_confirmation = true;
+            attributes.action_to_perform = ActionToPerform.CONFIRM_NEW_CITY;
+
             var counter = attributes.city_input_counter;
             if(typeof counter ==='undefined'){
+                //TODO: use counter to terminate this city lookup madness
                 counter = 0;
             }
 
