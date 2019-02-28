@@ -31,7 +31,7 @@ const EventsIntent = {
 
                 let date = new Date();
                 let startDate = Utils.getFormattedDate(date);
-                var nextWeek = new Date(date.getFullYear(), date.getMonth(), date.getDate()+7);
+                var nextWeek = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7);
                 let endDate = Utils.getFormattedDate(nextWeek);
 
                 let category = CATEGORIES;
@@ -88,11 +88,11 @@ const EventsIntent = {
                     handlerInput.attributesManager.setSessionAttributes(attributes);
 
                     var speech = new Speech();
-                    speech.say('Hi. Here are some events that I found in your neighborhood. Here\'s the first one. ')
-                    .pause('1s')
-                    .say(Utils.getShortEventDescription(response.results[0]))
-                    .pause('1s')
-                    .say(' ' + messages.DETAILS_OR_NEXT_REPROMPT);
+                    speech.say('Alright. Here are some events that I found in '+ attributes.user.city + '. Here\'s the first one. ')
+                        .pause('1s')
+                        .say(Utils.getShortEventDescription(response.results[0]))
+                        .pause('1s')
+                        .say(' ' + messages.DETAILS_OR_NEXT_REPROMPT);
 
                     var speechOutput = speech.ssml(true);
 
@@ -456,6 +456,9 @@ const RandomEventIntent = {
 
         const attributes = handlerInput.attributesManager.getSessionAttributes();
         if(attributes){
+
+            //TODO: Fix crash here.
+
             console.log("Retrieved from Session: " + attributes.index);
             console.log("Retrieved from Session: " + attributes.events.count);
             let rand = Math.floor(Math.random() * 9);

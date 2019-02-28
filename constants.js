@@ -1,7 +1,7 @@
 global.messages =
 {
     WELCOME: 'Welcome to My Events. Here you can find all the action happening in your neighborhood.'
-    + ' Like concerts, plays, exhibitions, sports events and many more. To find the closest events happening around you, please tell me, the name of the city you live',
+    + ' Like concerts, plays, exhibitions, sports events and many more. To find the closest events happening around you, can you please tell me the city where you live?',
     WELCOME_BACK: 'Welcome back to My Events! Here are some events that you might be interested in.',
     WHAT_DO_YOU_WANT: 'What do you want to ask?',
     NOTIFY_MISSING_PERMISSIONS: 'Uh Oh. Looks like you haven\'t enabled Location or Reminders permissions for me yet. Please proceed to the Amazon Alexa app and enable Location and Reminder permissions for My Events skill.' 
@@ -10,7 +10,7 @@ global.messages =
     ERROR: 'Uh Oh. Looks like something went wrong.',
     ERROR_NO_EVENTS_FOUND: 'Uh Oh. I don\'t have any events with me right now. Do you want me to search for events around you?',
     LOCATION_FAILURE: 'There was an error while creating a reminder. Please try again. You can say Next to hear the next one OR say Stop to quit.',
-    GOODBYE: 'Alright! Have a fun.',
+    GOODBYE: 'Alright! Have fun.',
     UNHANDLED: 'Sorry. I don\'t know that one. Please ask me something else.',
     HELP: 'Okay. Here are some phrases that you can say to me. Say, \'What\'s happening on friday?\', to get events on coming Friday. You can say any day of the week. '
     +'Say, \'Tell me all the events\', to get all the events in next 7 days. Say, Tell me details, to get details about a particular event. Say, Remind me, to remind you about that event an hour before it starts.',
@@ -22,7 +22,13 @@ global.messages =
     NO_REMINDER: 'OK, I won\'t remind you.',
     REMINDER_CREATED: 'Okay. I will remind you about this event an hour before it starts. ',
     REMINDER_PROMT: 'Would you like me to remind you about this event an hour before it starts? ',
-    NO_REMINDER_PROMT: 'Okay. ' + 'You can say Next to hear the next one OR say Stop to quit.'
+    NO_REMINDER_PROMT: 'Okay. ' + 'You can say Next to hear the next one OR say Stop to quit.',
+    REPEAT_CITY_NAME: 'Oh. Let\'s give it another try. Can you tell me the name of your city once again?',
+    REPEAT_CITY_NAME_RE: 'Can you please tell me the name of your city once again?',
+    CHANGE_CITY: 'Okay. Do you want me to look for events in some other city?',
+    CHANGE_CITY_RE: 'Do you want me to look for events in some other city?',
+    NEW_CITY: 'Great. Which city are you interested in?',
+    NEW_CITY_RE: 'Which city are you interested in?'
   };
 
 global.PERMISSIONS = ['read::alexa:device:all:address:country_and_postal_code', 'alexa::alerts:reminders:skill:readwrite'];

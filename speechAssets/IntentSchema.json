@@ -1,24 +1,27 @@
 {
     "interactionModel": {
         "languageModel": {
-            "invocationName": "events around me",
+            "invocationName": "my events",
             "intents": [
                 {
-                    "name": "GetAddressIntent",
-                    "slots": [],
-                    "samples": []
-                },
-                {
                     "name": "AMAZON.CancelIntent",
-                    "samples": []
+                    "samples": [
+                        "cancel"
+                    ]
                 },
                 {
                     "name": "AMAZON.HelpIntent",
-                    "samples": []
+                    "samples": [
+                        "tell me the instructions",
+                        "how can you help me",
+                        "How can I use this"
+                    ]
                 },
                 {
                     "name": "AMAZON.StopIntent",
-                    "samples": []
+                    "samples": [
+                        "stop"
+                    ]
                 },
                 {
                     "name": "AMAZON.NavigateHomeIntent",
@@ -44,33 +47,12 @@
                     "samples": []
                 },
                 {
-                    "name": "GetEventsAroundMe",
-                    "slots": [],
+                    "name": "AMAZON.NextIntent",
                     "samples": []
                 },
                 {
-                    "name": "AMAZON.NextIntent",
-                    "samples": [
-                        "whats next",
-                        "not interested",
-                        "other one",
-                        "next please",
-                        "next one ",
-                        "next"
-                    ]
-                },
-                {
                     "name": "AMAZON.PreviousIntent",
-                    "samples": [
-                        "last one please",
-                        "tell me the previous one",
-                        "what was the earlier one",
-                        "what was the last one",
-                        "previous please",
-                        "previous",
-                        "go to previous",
-                        "go to previous one"
-                    ]
+                    "samples": []
                 },
                 {
                     "name": "AMAZON.RepeatIntent",
@@ -84,34 +66,18 @@
                     ]
                 },
                 {
-                    "name": "FlashEventIntent",
+                    "name": "DetailsEventIntent",
                     "slots": [
                         {
-                            "name": "event_date",
-                            "type": "AMAZON.DATE"
+                            "name": "event_name",
+                            "type": "AMAZON.SearchQuery"
                         }
                     ],
                     "samples": [
-                        "whats happening this {event_date}",
-                        "give me the events on {event_date}",
-                        "how about this {event_date}",
-                        "show me the events on {event_date}",
-                        "tell me the events on {event_date}",
-                        "give me everything",
-                        "give me all",
-                        "tell me all",
-                        "give me all of the action",
-                        "start the event briefing",
-                        "start the event flash",
-                        "whats happenning around me",
-                        "tell all the events"
-                    ]
-                },
-                {
-                    "name": "DetailsEventIntent",
-                    "slots": [],
-                    "samples": [
-                        "details",
+                        "when is {event_name} scheduled",
+                        "when is {event_name} starting",
+                        "tell me about {event_name}",
+                        "tell me details about {event_name}",
                         "details please",
                         "tell me more about this one",
                         "tell me more about this event",
@@ -132,11 +98,21 @@
                     ]
                 },
                 {
+                    "name": "CreateReminderWithConsentIntent",
+                    "slots": [],
+                    "samples": [
+                        "create a reminder for this one",
+                        "remind me about this event",
+                        "remind me",
+                        "remind me about this one"
+                    ]
+                },
+                {
                     "name": "GetCityNameIntent",
                     "slots": [
                         {
                             "name": "city_name",
-                            "type": "AMAZON.US_CITY"
+                            "type": "AMAZON.City"
                         }
                     ],
                     "samples": [

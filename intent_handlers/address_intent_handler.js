@@ -56,13 +56,13 @@ const AddressIntent = {
                                 'userid': userid
                             }).then(function (resp) {
 
-                                let response = getResponseForAddress(handlerInput, userid, user_address, address);
+                                let response = getResponseForAddress(handlerInput, userid, user_address, address.postalCode);
                                 resolve(response);
                             });
 
                         } else {
 
-                            let response = getResponseForAddress(handlerInput, userid, user_address, address);
+                            let response = getResponseForAddress(handlerInput, userid, user_address, address.postalCode);
                             resolve(response);
                         }
 
@@ -89,26 +89,16 @@ const AddressIntent = {
 
 function getResponseForAddress(handlerInput, userid, user_address, address) {
     if(user_address.results.length > 0){
-        var lng = user_address.results[0].geometry.location.lng;
+
         var lat = user_address.results[0].geometry.location.lat;
+        var lng = user_address.results[0].geometry.location.lng;
         var address_components = user_address.results[0].address_components;
+        var cityName = address_components[0].long_name;
         var country = address_components[address_components.length - 1].short_name;
 
-        DatabaseHelper.saveUserAddress(userid, user_address, address.postalCode, country);
+        DatabaseHelper.saveUserAddress(userid, lat, lng, cityName, address.postalCode, country);
 
-        console.log("address_components length " + address_components.length);
-        console.log("short name: " + address_components[address_components.length - 1].short_name);
-
-        let user = {
-            'userid': userid,
-            'lat': lat,
-            'lng': lng,
-            'country': country
-        };
-
-        const attributes = handlerInput.attributesManager.getSessionAttributes();
-        attributes.user = user;
-        handlerInput.attributesManager.setSessionAttributes(attributes);
+        addUserInAttributes(user_address, userid, handlerInput);
 
         return handlerInput.responseBuilder
             .speak("Hello again. Here is what I found about you. You live in " + user_address.results[0].formatted_address +
@@ -117,9 +107,33 @@ function getResponseForAddress(handlerInput, userid, user_address, address) {
             .getResponse();
     }else{
         return handlerInput.responseBuilder
-            .speak("Hello again. I couldn't find where you live. Please try again.")
+            .speak("Hello. Sorry, but I couldn't find where you live. Please try again.")
             .getResponse();
     }
+}
+
+function addUserInAttributes(user_address, userid, handlerInput){
+    var lng = user_address.results[0].geometry.location.lng;
+    var lat = user_address.results[0].geometry.location.lat;
+    var address_components = user_address.results[0].address_components;
+    var cityName = address_components[0].long_name;
+    var country = address_components[address_components.length - 1].short_name;
+
+    console.log("Creating User attribute.. ");
+
+    let user = {
+        'userid': userid,
+        'lat': lat,
+        'lng': lng,
+        'city': cityName,
+        'country': country
+    };
+
+    console.log("User attribute: " + JSON.stringify(user));
+
+    const attributes = handlerInput.attributesManager.getSessionAttributes();
+    attributes.user = user;
+    handlerInput.attributesManager.setSessionAttributes(attributes);
 }
 
 const GetCityNameIntent = {
@@ -131,11 +145,6 @@ const GetCityNameIntent = {
         return request.type === 'IntentRequest' && request.intent.name === 'GetCityNameIntent';
     },
     async handle(handlerInput) {
-        const {
-            requestEnvelope,
-            serviceClientFactory,
-            responseBuilder
-        } = handlerInput;
 
         const { request } = handlerInput.requestEnvelope;
 
@@ -144,29 +153,40 @@ const GetCityNameIntent = {
 
             let slots = request.intent.slots;
 
-            //User wants to know about a particular event.
             let city_name = slots.city_name.value;
             console.log("Got this city from user..."+ city_name);
 
-            const user_address = await LocationHelper.getLatLongFromAddress(city_name);
+            const attributes = handlerInput.attributesManager.getSessionAttributes();
+            attributes.is_city_name_confirmation = true;
+            var counter = attributes.city_input_counter;
+            if(typeof counter ==='undefined'){
+                counter = 0;
+            }
+
+            const userid = handlerInput.requestEnvelope.session.user.userId;
+            const user_address = await LocationHelper.getLatLongFromAddress(encodeURIComponent(city_name));
+
             if(user_address.results.length > 0){
                 var response = user_address.results[0].formatted_address;
 
                 var speech = new Speech();
-                speech.say('So you live in ' + response);
-                speech.pause('1s');
-                speech.say('Is that right?');
+                speech.say('Okay. Just to confirm. ');
+                speech.say('Do you want me to look for the events in ');
+                speech.say(response + '?');
                 var speechOutput = speech.ssml(true);
 
+                // create session attribute for user
+                addUserInAttributes(user_address, userid, handlerInput);
+
                 return handlerInput.responseBuilder
-                .speak(speechOutput)
-                .reprompt('Do you live in ' + response +'?')
-                .getResponse();
+                    .speak(speechOutput)
+                    .reprompt(speechOutput)
+                    .getResponse();
             }else{
                 return handlerInput.responseBuilder
-                .speak('Uh oh. I could not find the city ' + city_name +'. Please try again.')
-                .reprompt('Uh oh. I could not find the city ' + city_name +'. Please try again.')
-                .getResponse();
+                    .speak('Uh oh. I could not find the city named ' + city_name + '. '+ messages.REPEAT_CITY_NAME_RE)
+                    .reprompt(messages.REPEAT_CITY_NAME_RE)
+                    .getResponse();
             }
         }
     },

@@ -8,18 +8,13 @@ var credentials = {
 var dynasty = require('dynasty')(credentials);
 var USERS_TABLE = dynasty.table('events_user_info');
 
-function saveUserAddress(userid, userAddress, postalCode, countrycode)
+function saveUserAddress(userid, lat, lng, city, postalCode, countrycode)
 {
-    var lat = userAddress.results[0].geometry.location.lat;
-    var lng = userAddress.results[0].geometry.location.lng;
-
-    console.log("lat: "  + lat);
-    console.log("lng: "  + lng);
-
     USERS_TABLE.update( userid,{
-        'pincode':postalCode,
         'lat':lat,
         'lng':lng,
+        'city': city,
+        'pincode':postalCode,
         'country':countrycode
     })
     .then(function(resp){

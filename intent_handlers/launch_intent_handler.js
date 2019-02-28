@@ -3,6 +3,7 @@ const EventsIntentHandler = require('./events_intent_handler.js');
 const AddressIntentHandler = require('./address_intent_handler.js');
 
 require('./../constants.js');
+const Speech = require('ssml-builder');
 
 const LaunchRequest = {
         canHandle(handlerInput) {
@@ -20,12 +21,6 @@ const LaunchRequest = {
         && requestEnvelope.context.System.user.permissions.consentToken;
 
         console.log("Inside Launch Request...");
-        if (!consentToken) {
-            return responseBuilder
-            .speak(messages.WELCOME)
-            .withAskForPermissionsConsentCard(PERMISSIONS)
-            .getResponse();
-        }
 
         return handleLaunchRequest(handlerInput);
     }
@@ -50,6 +45,7 @@ function handleLaunchRequest(handlerInput){
                 //Passing along user details in the session so as to skip fetching the details from db everytime.
                 const attributes = handlerInput.attributesManager.getSessionAttributes();
                 attributes.user = user;
+                console.log(JSON.stringify(attributes.user));
 
                 if(attributes.intent_to_cater){
                     if(attributes.intent_to_cater == 'DetailsEventIntent'){
@@ -63,14 +59,30 @@ function handleLaunchRequest(handlerInput){
                         resolve(EventsIntentHandler.EventsIntent.handle(handlerInput));
                     }
                 }else{
-
+                    const attributes = handlerInput.attributesManager.getSessionAttributes();
+                    attributes.default_city_event_confirmation = true;
                     handlerInput.attributesManager.setSessionAttributes(attributes);
-                    resolve(EventsIntentHandler.EventsIntent.handle(handlerInput));
+
+                    var speech = new Speech();
+                    if(user.city && typeof user.city !== 'undefined'){
+                        speech.say("Hi there. Welcome to my events. Do you want me to look for upcoming events in " + user.city + "?");
+                    }else{
+                        speech.say("Hi there. Welcome to my events. Do you want me to look for upcoming events in your city?");
+                    }
+                    var speechOutput = speech.ssml(true);
+
+                    resolve(handlerInput.responseBuilder
+                        .speak(speechOutput)
+                        .reprompt(speechOutput)
+                        .getResponse());
                 }
             }else{
 
-                console.log("Address is not found in DB. Fetching user address first.");
-                resolve(AddressIntentHandler.AddressIntent.handle(handlerInput));
+                console.log("User added in DB. Now fetching user address...");
+                resolve(handlerInput.responseBuilder
+                    .speak(messages.WELCOME)
+                    .reprompt(messages.WELCOME)
+                    .getResponse());
             }
 
         }else{
@@ -80,7 +92,10 @@ function handleLaunchRequest(handlerInput){
             .then(function(resp){
 
                 console.log("User added in DB. Now fetching user address...");
-                resolve(AddressIntentHandler.AddressIntent.handle(handlerInput));
+                resolve(handlerInput.responseBuilder
+                    .speak(messages.WELCOME)
+                    .reprompt(messages.WELCOME)
+                    .getResponse());
             });
         }
     });
