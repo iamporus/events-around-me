@@ -4,8 +4,9 @@ global.messages =
     + ' Like concerts, plays, exhibitions, sports events and many more. To find the closest events happening around you, can you please tell me the city where you live?',
     WELCOME_BACK: 'Welcome back to My Events! Here are some events that you might be interested in.',
     WHAT_DO_YOU_WANT: 'What do you want to ask?',
-    NOTIFY_MISSING_PERMISSIONS: 'Uh Oh. Looks like you haven\'t enabled Location or Reminders permissions for me yet. Please proceed to the Amazon Alexa app and enable Location and Reminder permissions for My Events skill.' 
-    + ' You can open this skill later on by saying, Alexa, open My Events.',
+    NOTIFY_MISSING_PERMISSIONS: 'Oh. Before I could create a reminder, it is necessary for me to get the reminder permissions from you. ' +
+    'So, please proceed to the Amazon Alexa companion app and enable reminders permissions for My Events skill. ' +
+    'Don\'t worry. This is one time thing only.' + ' You can open this skill later on by saying, Alexa, open My Events.',
     NO_ADDRESS: 'It looks like you don\'t have an address set. You can set your address from the companion app.',
     ERROR: 'Uh Oh. Looks like something went wrong.',
     ERROR_NO_EVENTS_FOUND: 'Uh Oh. I don\'t have any events with me right now. Do you want me to search for events around you?',
@@ -35,7 +36,7 @@ global.messages =
 global.interesting = [ 'Does this event sound interesting?', 'Does this looks interesting?', 'Want to know more about it?', 'Should I tell you more about this one?']
 global.fetchNextThree = [ 'Okay. Should I tell you few more events?', 'Do you want to listen to more events?', 'Want to know more such events?', 'Do you want me to continue with the events?']
 
-global.PERMISSIONS = ['read::alexa:device:all:address:country_and_postal_code', 'alexa::alerts:reminders:skill:readwrite'];
+global.PERMISSIONS = ['alexa::alerts:reminders:skill:readwrite'];
 global.CATEGORIES = 'concerts,sports,festivals,performing-arts';
 
 global.ActionToPerform = {

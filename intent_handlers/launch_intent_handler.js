@@ -53,6 +53,11 @@ function handleLaunchRequest(handlerInput){
                         resolve(EventsIntentHandler.DetailsEventIntent.handle(handlerInput));
 
                     }
+                    else if(attributes.intent_to_cater == 'RandomEventIntent'){
+
+                        handlerInput.attributesManager.setSessionAttributes(attributes);
+                        resolve(EventsIntentHandler.RandomEventIntent.handle(handlerInput));
+                    }
                 }else{
                     const attributes = handlerInput.attributesManager.getSessionAttributes();
                     attributes.action_to_perform = ActionToPerform.EVENT_LOOKUP_DEFAULT_CITY;

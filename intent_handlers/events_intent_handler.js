@@ -63,6 +63,15 @@ const EventsIntent = {
                     attributes.events = response;
                     attributes.index = 0;
 
+                    if(attributes.intent_to_cater)
+                    {
+                        if(attributes.intent_to_cater == 'RandomEventIntent')
+                        {
+                            handlerInput.attributesManager.setSessionAttributes(attributes);
+                            return RandomEventIntent.handle(handlerInput);
+                        }
+                    }
+
                     handlerInput.attributesManager.setSessionAttributes(attributes);
 
                     var speech = new Speech();
@@ -361,31 +370,52 @@ const RandomEventIntent = {
     async handle(handlerInput) {
 
         const attributes = handlerInput.attributesManager.getSessionAttributes();
+        console.log("Inside RandomEventIntent..." );
         if(attributes){
 
-            //TODO: Fix crash here.
+            if(!attributes.user){
+                // user has directly invoked this event without opening the skill
+                // no previous data is present. we don't even know whether user is in db or not
+                // hence forward this event to launch event and pass along an identifier suggesting the
+                // original event to cater is a RandomEventIntent.
+                attributes.intent_to_cater = 'RandomEventIntent';
+                handlerInput.attributesManager.setSessionAttributes(attributes);
+                return LaunchIntentHandler.handleLaunchRequest(handlerInput);
 
-            console.log("Retrieved from Session: " + attributes.index);
-            console.log("Retrieved from Session: " + attributes.events.count);
-            let rand = Math.floor(Math.random() * 9);
+            }
+            if(!attributes.events){
+                // user has directly invoked this event without opening the skill
+                // no previous data is present. we don't even know whether user is in db or not
+                // hence forward this event to launch event and pass along an identifier suggesting the
+                // original event to cater is a RandomEventIntent.
+                attributes.intent_to_cater = 'RandomEventIntent';
+                handlerInput.attributesManager.setSessionAttributes(attributes);
+                return EventsIntent.handle(handlerInput);
 
-            attributes.index = rand;
-            attributes.action_to_perform = ActionToPerform.EVENT_DETAILS;
-            handlerInput.attributesManager.setSessionAttributes(attributes);
+            }
+            else{
 
-            let event = attributes.events.results[rand];
-            var speech = new Speech();
-            speech.say("Sure. This one looks interesting to me. ");
-            speech.pause('1s');
-            speech.say(Utils.getShortEventDescription(event) + ' ' + Utils.randomize(interesting));
-            speech.pause('1s');
-            speech.say(messages.NEXT_REPROMPT);
-            var speechOutput = speech.ssml(true);
+                console.log("Retrieved from Session: " + attributes.index);
+                console.log("Retrieved from Session: " + attributes.events.count);
+                let rand = Math.floor(Math.random() * (attributes.events.count > 9 ? 9 : attributes.events.count));
+                console.log("Random event index: " + rand);
 
-            return handlerInput.responseBuilder
-                .speak(speechOutput)
-                .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
-                .getResponse();
+                attributes.index = rand;
+                attributes.action_to_perform = ActionToPerform.EVENT_DETAILS;
+                handlerInput.attributesManager.setSessionAttributes(attributes);
+
+                let event = attributes.events.results[rand];
+                var speech = new Speech();
+                speech.say("Sure. This one looks interesting to me. ");
+                speech.pause('1s');
+                speech.say(Utils.getShortEventDescription(event) + ' ' + Utils.randomize(interesting));
+                var speechOutput = speech.ssml(true);
+
+                return handlerInput.responseBuilder
+                    .speak(speechOutput)
+                    .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
+                    .getResponse();
+                }
 
         }else{
             return handlerInput.responseBuilder

@@ -1,4 +1,5 @@
 var moment = require('moment-timezone');
+var readingTime = require('reading-time');
 
 function getFormattedDate(date) {
     var month = date.getMonth() < 9 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
@@ -69,6 +70,7 @@ function getEventDescription(event){
     let eventDate = new Date(event.start);
     let category = event.category;
     let description = event.description;
+    var stats = readingTime(description);
     let timezone = event.timezone;
     let time = getFormattedTime(eventDate, timezone);
 
@@ -80,9 +82,14 @@ function getEventDescription(event){
     }
     let shortenedDate = getDateWithoutYear(eventDate);
 
-    return "The event " + event.title + " is a " + category + " event and is scheduled on " + shortenedDate + ". "
+    if(stats.time >= 5000 && stats.time <= 15000){
+        return "The event " + event.title + " is a " + category + " event and is scheduled on " + shortenedDate + ". "
+    + "It will start at " + time + " and will run for " + duration + ". Here\'s it\'s description. " + description;
+    }
+    else{
+        return "The event " + event.title + " is a " + category + " event and is scheduled on " + shortenedDate + ". "
     + "It will start at " + time + " and will run for " + duration + ". ";
-
+    }
 }
 
 function randomize(array){

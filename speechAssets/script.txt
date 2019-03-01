@@ -104,6 +104,10 @@ Alexa: Great. Here’s how it goes.
 
 User: yes
 
+Alexa: Great. But before I could create a reminder, it is necessary for me to get the reminder permissions from you.
+       So, please proceed to the Amazon Alexa companion app and enable reminders permissions for My Events skill.
+       You'll find a card waiting for you once you open the app. Don't worry. This is one time thing only.
+
 Alexa: Okay. The event ‘Event 2’ starts on ‘Date’. Do you want me to remind you, say around Time -1 hour ’?
 
 User: No
