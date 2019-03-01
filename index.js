@@ -8,6 +8,7 @@ const SessionIntentHandler = require('./intent_handlers/session_intent_handler.j
 const RemindersIntentHandler = require('./intent_handlers/reminders_intent_handler.js');
 const ErrorHandler = require('./intent_handlers/error_handler.js');
 const DatabaseHelper = require('./helpers/database_helper.js');
+const Utils = require('./helpers/utils.js');
 
 const UnhandledIntent = {
   canHandle() {
@@ -81,6 +82,16 @@ const YesIntent = {
           //Said yes for telling the details
           return EventsIntentHandler.DetailsEventIntent.handle(handlerInput);
         }
+        case ActionToPerform.FETCH_MORE_EVENTS:{
+
+          //Said yes for fetching more events
+          return EventsIntentHandler.NextEventIntent.handle(handlerInput);
+        }
+        case ActionToPerform.REPEAT_EVENTS:{
+
+          //Said yes for repeat from start
+          return EventsIntentHandler.RepeatEventIntent.handle(handlerInput);
+        }
       }
     }
     return EventsIntentHandler.EventsIntent.handle(handlerInput);
@@ -153,7 +164,44 @@ const NoIntent = {
         case ActionToPerform.EVENT_DETAILS:{
 
           //Said No for telling the details
-          return EventsIntentHandler.NextEventIntent.handle(handlerInput);
+          //If 3 events have been spoken, get consent for fetching next 3
+          let index = attributes.index;
+          if((index + 1) % 3 == 0){
+
+            attributes.action_to_perform = ActionToPerform.FETCH_MORE_EVENTS;
+            handlerInput.attributesManager.setSessionAttributes(attributes);
+
+            return handlerInput.responseBuilder
+              .speak(Utils.randomize(fetchNextThree))
+              .reprompt(Utils.randomize(fetchNextThree))
+              .getResponse();
+          }
+          else{
+            return EventsIntentHandler.NextEventIntent.handle(handlerInput);
+          }
+        }
+        case ActionToPerform.FETCH_MORE_EVENTS:{
+
+          //Said No to look for more events. Ask whether he wants to look events in another city.
+          attributes.action_to_perform = ActionToPerform.EVENT_LOOKUP_NEW_CITY;
+          handlerInput.attributesManager.setSessionAttributes(attributes);
+
+          return handlerInput.responseBuilder
+            .speak(messages.CHANGE_CITY)
+            .reprompt(messages.CHANGE_CITY_RE)
+            .getResponse();
+        }
+        case ActionToPerform.REPEAT_EVENTS:{
+
+          //Said No for repeat from start
+          //Ask whether he wants to look events in another city.
+          attributes.action_to_perform = ActionToPerform.EVENT_LOOKUP_NEW_CITY;
+          handlerInput.attributesManager.setSessionAttributes(attributes);
+
+          return handlerInput.responseBuilder
+            .speak(messages.CHANGE_CITY)
+            .reprompt(messages.CHANGE_CITY_RE)
+            .getResponse();
         }
       }
     }

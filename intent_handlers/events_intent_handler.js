@@ -134,11 +134,14 @@ const NextEventIntent = {
             index = index + 1;
             attributes.index = index;
 
-            if(index == attributes.events.count)
+            if(index == 10)
             {
+                attributes.action_to_perform = ActionToPerform.REPEAT_EVENTS;
+                handlerInput.attributesManager.setSessionAttributes(attributes);
+
                 return handlerInput.responseBuilder
-                .speak("Oh! that was the last one on my list. You can say Repeat to start over.")
-                .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
+                .speak("Oh! that was the last one on my list. Do you want me to repeat all the events from the start?")
+                .reprompt('Do you want me to repeat all the events from the start?')
                 .getResponse();
             }
 
@@ -177,8 +180,11 @@ const PreviousEventIntent = {
             let index = attributes.index;
             if(index == 0)
             {
+                attributes.action_to_perform = ActionToPerform.REPEAT_EVENTS;
+                handlerInput.attributesManager.setSessionAttributes(attributes);
+
                 return handlerInput.responseBuilder
-                .speak("Oh! I can't go back than this. This is the first one in the list.")
+                .speak("Oh! I can't go back than this. This is the first one in the list. Do you want me to repeat all the events from start?")
                 .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
                 .getResponse();
             }
@@ -188,7 +194,8 @@ const PreviousEventIntent = {
             handlerInput.attributesManager.setSessionAttributes(attributes);
 
             return handlerInput.responseBuilder
-                .speak("Here's the previous one. " + Utils.getShortEventDescription(attributes.events.results[index]))
+                .speak("Here's the previous one. " + Utils.getShortEventDescription(attributes.events.results[index])
+                + ' ' + Utils.randomize(interesting))
                 .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
                 .getResponse();
         }else{
@@ -222,11 +229,13 @@ const RepeatEventIntent = {
             }
 
             attributes.index = index;
+            attributes.action_to_perform = ActionToPerform.EVENT_DETAILS;
             handlerInput.attributesManager.setSessionAttributes(attributes);
 
             return handlerInput.responseBuilder
                 .speak("Okay. Let's start from the beginning. Here's the first one. "
-                + Utils.getShortEventDescription(attributes.events.results[index]))
+                + Utils.getShortEventDescription(attributes.events.results[index])
+                + ' ' + Utils.randomize(interesting))
                 .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
                 .getResponse();
         }else{
@@ -309,7 +318,6 @@ const DetailsEventIntent = {
                     let index = attributes.index;
 
                     attributes.index = index;
-                    handlerInput.attributesManager.setSessionAttributes(attributes);
 
                     let event = attributes.events.results[index];
 
@@ -319,7 +327,8 @@ const DetailsEventIntent = {
                     speech.say(messages.REMINDER_PROMT);
                     var speechOutput = speech.ssml(true);
 
-                    attributes.is_reminder_request = 'Yes';
+                    attributes.action_to_perform = ActionToPerform.CREATE_REMINDER;
+                    handlerInput.attributesManager.setSessionAttributes(attributes);
 
                     return handlerInput.responseBuilder.speak(speechOutput)
                     .reprompt(messages.NEXT_REPROMPT)
@@ -361,13 +370,14 @@ const RandomEventIntent = {
             let rand = Math.floor(Math.random() * 9);
 
             attributes.index = rand;
+            attributes.action_to_perform = ActionToPerform.EVENT_DETAILS;
             handlerInput.attributesManager.setSessionAttributes(attributes);
 
             let event = attributes.events.results[rand];
             var speech = new Speech();
-            speech.say("This one looks interesting. ");
+            speech.say("Sure. This one looks interesting to me. ");
             speech.pause('1s');
-            speech.say(Utils.getShortEventDescription(event));
+            speech.say(Utils.getShortEventDescription(event) + ' ' + Utils.randomize(interesting));
             speech.pause('1s');
             speech.say(messages.NEXT_REPROMPT);
             var speechOutput = speech.ssml(true);
