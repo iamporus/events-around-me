@@ -9,7 +9,7 @@ function getEventsAroundUser(lat, lng, country, categories, startDate, endDate) 
         +'&category=' + categories
         +'&start.gte=' + startDate
         +'&start.lte=' + endDate
-        +'&within=500km@' + lat +','+ lng;
+        +'&within=200km@' + lat +','+ lng;
 
         console.log(pathVal);
 
@@ -49,7 +49,7 @@ function getAParticularEvent(lat, lng, eventName, country, categories ) {
         +'&q='+ eventName
         +'&country=' + country
         +'&category=' + categories
-        +'&within=100km@' + lat +','+ lng;
+        +'&within=200km@' + lat +','+ lng;
 
         console.log(pathVal);
 

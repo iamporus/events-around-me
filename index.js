@@ -156,10 +156,21 @@ const NoIntent = {
         case ActionToPerform.CREATE_REMINDER:{
 
           //Said No for creating reminder
-          return handlerInput.responseBuilder
-            .speak(messages.NO_REMINDER_PROMT)
-            .reprompt(messages.NEXT_REPROMPT)
-            .getResponse();
+          //If 3 events have been spoken, get consent for fetching next 3
+          let index = attributes.index;
+          if((index + 1) % 3 == 0){
+
+            attributes.action_to_perform = ActionToPerform.FETCH_MORE_EVENTS;
+            handlerInput.attributesManager.setSessionAttributes(attributes);
+
+            return handlerInput.responseBuilder
+              .speak(Utils.randomize(fetchNextThree))
+              .reprompt(Utils.randomize(fetchNextThree))
+              .getResponse();
+          }
+          else{
+            return EventsIntentHandler.NextEventIntent.handle(handlerInput);
+          }
         }
         case ActionToPerform.EVENT_DETAILS:{
 
@@ -213,6 +224,8 @@ const NoIntent = {
 
 const skillBuilder = Alexa.SkillBuilders.custom();
 
+module.exports.NoIntent = NoIntent;
+
 exports.handler = skillBuilder
   .addRequestHandlers(
     LaunchIntentHandler.LaunchRequest,
@@ -224,6 +237,7 @@ exports.handler = skillBuilder
     EventsIntentHandler.RepeatEventIntent,
     EventsIntentHandler.DetailsEventIntent,
     EventsIntentHandler.RandomEventIntent,
+    EventsIntentHandler.GetEventByDateIntent,
     SessionIntentHandler.SessionEndedRequest,
     RemindersIntentHandler.CreateReminderIntent,
     RemindersIntentHandler.CreateReminderWithConsentIntent,

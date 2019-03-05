@@ -51,12 +51,16 @@ function handleLaunchRequest(handlerInput){
 
                         handlerInput.attributesManager.setSessionAttributes(attributes);
                         resolve(EventsIntentHandler.DetailsEventIntent.handle(handlerInput));
-
                     }
                     else if(attributes.intent_to_cater == 'RandomEventIntent'){
 
                         handlerInput.attributesManager.setSessionAttributes(attributes);
                         resolve(EventsIntentHandler.RandomEventIntent.handle(handlerInput));
+                    }
+                    else if(attributes.intent_to_cater == 'GetEventByDateIntent'){
+
+                        handlerInput.attributesManager.setSessionAttributes(attributes);
+                        resolve(EventsIntentHandler.GetEventByDateIntent.handle(handlerInput));
                     }
                 }else{
                     const attributes = handlerInput.attributesManager.getSessionAttributes();
@@ -66,9 +70,9 @@ function handleLaunchRequest(handlerInput){
 
                     var speech = new Speech();
                     if(user.city && typeof user.city !== 'undefined'){
-                        speech.say("Hi there. Welcome to my events. Do you want me to look for upcoming events in " + user.city + "?");
+                        speech.say("Welcome to my events. Do you want me to look for upcoming events in " + user.city + "?");
                     }else{
-                        speech.say("Hi there. Welcome to my events. Do you want me to look for upcoming events in your city?");
+                        speech.say("Welcome to my events. Do you want me to look for upcoming events in your city?");
                     }
                     var speechOutput = speech.ssml(true);
 

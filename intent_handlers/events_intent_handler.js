@@ -143,7 +143,7 @@ const NextEventIntent = {
             index = index + 1;
             attributes.index = index;
 
-            if(index == 10)
+            if(index == 10 || index == attributes.events.count)
             {
                 attributes.action_to_perform = ActionToPerform.REPEAT_EVENTS;
                 handlerInput.attributesManager.setSessionAttributes(attributes);
@@ -426,10 +426,116 @@ const RandomEventIntent = {
     }
 }
 
+const GetEventByDateIntent = {
+
+    canHandle(handlerInput){
+        const { request } = handlerInput.requestEnvelope;
+
+        return request.type === 'IntentRequest' && request.intent.name === 'GetEventByDateIntent';
+    },
+
+    async handle(handlerInput){
+
+        const { request } = handlerInput.requestEnvelope;
+        const attributes = handlerInput.attributesManager.getSessionAttributes();
+        console.log("Inside GetEventByDateIntent..." );
+        if(attributes){
+
+            if(!attributes.user){
+                // user has directly invoked this event without opening the skill
+                // no previous data is present. we don't even know whether user is in db or not
+                // hence forward this event to launch event and pass along an identifier suggesting the
+                // original event to cater is a GetEventByDateIntent.
+                attributes.intent_to_cater = 'GetEventByDateIntent';
+                handlerInput.attributesManager.setSessionAttributes(attributes);
+                return LaunchIntentHandler.handleLaunchRequest(handlerInput);
+
+            }
+
+            let category = CATEGORIES;
+
+            let startDate, endDate;
+            if(request.intent && request.intent.slots && request.intent.slots.event_date){
+                console.log("inside intents...");
+                let slots = request.intent.slots;
+                //User wants to know events on an exact date.
+                console.log("date slot..."+ slots.event_date.value);
+                if(typeof slots.event_date.value !== 'undefined' && slots.event_date.value){
+                    let date = slots.event_date.value;
+                    let parsedDate = Utils.getDateFromSlot(date);
+                    startDate = parsedDate.startDate;
+                    endDate = parsedDate.endDate;
+                    console.log("parsed date..."+ parsedDate);
+
+                    const response = await EventsHelper.getEventsAroundUser(attributes.user.lat,
+                        attributes.user.lng,
+                        attributes.user.country,
+                        category, startDate, endDate);
+
+                    if(response.count > 0){
+                        console.log("Events around me: " + response.count);
+
+                        //save the response in the session for handling next/previous intent
+                        attributes.events = response;
+                        attributes.index = 0;
+
+                        handlerInput.attributesManager.setSessionAttributes(attributes);
+
+                        var speech = new Speech();
+
+                        if(response.count == 1){
+
+                            attributes.action_to_perform = ActionToPerform.CREATE_REMINDER;
+
+                            speech.say('Okay. I found just one event happening on '+ Utils.getDateWithoutYear(startDate) + '. Here\'s how it goes. ')
+                            .pause('1s')
+                            .say(Utils.getShortEventDescription(response.results[0]))
+                            .pause('1s')
+                            .say(' ' + messages.REMINDER_PROMT);
+                        }else{
+
+                            attributes.action_to_perform = ActionToPerform.EVENT_DETAILS;
+
+                            speech.say('Alright. Here are some events that I found on '+ Utils.getDateWithoutYear(startDate) + '. Here\'s the first one. ')
+                            .pause('1s')
+                            .say(Utils.getShortEventDescription(response.results[0]))
+                            .pause('1s')
+                            .say(' ' + Utils.randomize(interesting));
+                        }
+
+                        var speechOutput = speech.ssml(true);
+
+                        return handlerInput.responseBuilder
+                            .speak(speechOutput)
+                            .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
+                            .getResponse();
+                    }
+                    else{
+
+                        //Ask whether he wants to look events in other city
+                        attributes.action_to_perform = ActionToPerform.EVENT_LOOKUP_NEW_CITY;
+
+                        handlerInput.attributesManager.setSessionAttributes(attributes);
+
+                        return handlerInput.responseBuilder
+                            .speak("Sorry. I could not find any events on "+ Utils.getDateWithoutYear(startDate) +". " + messages.CHANGE_CITY_RE)
+                            .reprompt(messages.CHANGE_CITY_RE)
+                            .getResponse();
+                    }
+                }
+            }
+        }else{
+
+        }
+    }
+
+}
+
 module.exports.EventsIntent = EventsIntent;
 module.exports.NextEventIntent = NextEventIntent;
 module.exports.PreviousEventIntent = PreviousEventIntent;
 module.exports.RepeatEventIntent = RepeatEventIntent;
 module.exports.DetailsEventIntent = DetailsEventIntent;
 module.exports.RandomEventIntent = RandomEventIntent;
+module.exports.GetEventByDateIntent = GetEventByDateIntent;
 

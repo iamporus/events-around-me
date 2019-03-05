@@ -1,5 +1,8 @@
 const LocationHelper = require('../helpers/location_helper');
 const DatabaseHelper = require('../helpers/database_helper');
+const DefaultIntents = require('../index')
+const Utils = require('./../helpers/utils')
+
 require('../constants.js');
 var Speech = require('ssml-builder');
 
@@ -155,6 +158,11 @@ const GetCityNameIntent = {
 
             let city_name = slots.city_name.value;
             console.log("Got this city from user..."+ city_name);
+            //This is a hack for addressing issue where user says no to any action and Alexa cloud considers it as GetCityNameIntent
+            if(city_name === 'nõo' || city_name === 'nowe' || city_name === 'now' || city_name === 'noo'){
+                console.log("False Intent... Redirecting to NoIntent..." );
+                return DefaultIntents.NoIntent.handle(handlerInput);
+            }
 
             const attributes = handlerInput.attributesManager.getSessionAttributes();
             attributes.action_to_perform = ActionToPerform.CONFIRM_NEW_CITY;
@@ -172,8 +180,7 @@ const GetCityNameIntent = {
                 var response = user_address.results[0].formatted_address;
 
                 var speech = new Speech();
-                speech.say('Okay. Just to confirm. ');
-                speech.say('Do you want me to look for the events in ');
+                speech.say(Utils.randomize(cityConfirm));
                 speech.say(response + '?');
                 var speechOutput = speech.ssml(true);
 

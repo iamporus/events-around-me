@@ -1,5 +1,6 @@
 var moment = require('moment-timezone');
 var readingTime = require('reading-time');
+var AmazonDateParser = require('amazon-date-parser');
 
 function getFormattedDate(date) {
     var month = date.getMonth() < 9 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
@@ -92,6 +93,26 @@ function getEventDescription(event){
     }
 }
 
+function getDateFromSlot(slotDate){
+    if(slotDate && typeof slotDate !== 'undefined'){
+        var date = new AmazonDateParser(slotDate);
+        var startDate = moment(date.startDate).format('YYYY-MM-DD');
+        var endDate = moment(date.endDate).format('YYYY-MM-DD');
+        return {
+            startDate: startDate,
+            endDate: endDate
+        }
+    }else{
+        let date = new Date();
+        var startDate = moment(date).format('YYYY-MM-DD');
+        var endDate = startDate;
+        return {
+                startDate: startDate,
+                endDate: endDate
+        }
+    }
+}
+
 function randomize(array){
     return array[Math.floor(Math.random() * array.length)];
 }
@@ -109,4 +130,5 @@ module.exports.getHumanReadableTime = getHumanReadableTime;
 module.exports.getShortEventDescriptionWithoutDate = getShortEventDescriptionWithoutDate;
 module.exports.getEventDescriptionForCard = getEventDescriptionForCard;
 module.exports.reminderCanBeCreated = reminderCanBeCreated;
+module.exports.getDateFromSlot = getDateFromSlot;
 module.exports.randomize = randomize;
