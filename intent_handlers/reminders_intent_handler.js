@@ -92,8 +92,9 @@ const CreateReminderWithConsentIntent = {
 
 async function createReminderForEvent(event, handlerInput){
 
+  const { request } = handlerInput.requestEnvelope;
   let timezone = event.timezone;
-  let locale = handlerInput.requestEnvelope.locale;
+  let locale = request.locale;
   let startDate = ""+ Utils.getReminderDate(event.start, timezone);
   let reminderTime = "" + Utils.getReminderTime(event.start, timezone);
   let reminderDate = "" + Utils.getReminderDateForText(event.start, timezone);
