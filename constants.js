@@ -11,19 +11,14 @@ global.messages =
     ERROR: 'Uh Oh. Looks like something went wrong.',
     ERROR_NO_EVENTS_FOUND: 'Uh Oh. I don\'t have any events with me right now. Do you want me to search for events around you?',
     LOCATION_FAILURE: 'There was an error while creating a reminder. Please try again. You can say Next to hear the next one OR say Stop to quit.',
-    GOODBYE: 'Alright! Have fun.',
     UNHANDLED: 'Sorry. I don\'t know that one. Please ask me something else.',
     HELP: 'Okay. Here are some things that you can say to me. Say, \'What\'s happening on friday?\', to get events on coming Friday. You can say any day of the week. '
     +'Say, \'Tell me all the events\', to get all the events in next 7 days in your city. Interested in knowing events happening in other cities? Just say, Tell me events in New York or any city in the world. Say, Remind me, to remind you about that event an hour before it starts.',
-    STOP: 'Okay!',
-    NAVIGATE_HOME: 'Bye! Thanks for using My Events!',
     DETAILS_OR_NEXT_REPROMPT: "You can say \'Tell me details\' or say Next to hear the next one.",
     NEXT_REPROMPT: "You can say Next to hear the next one OR say Stop to quit.",
     DETAILS_OR_APP: 'That\'s it. You can say \'Tell me details\' to know more about the events.',
     NO_REMINDER: 'OK, I won\'t remind you.',
-    REMINDER_CREATED: 'Okay. I will remind you about this event an hour before it starts. ',
     REMINDER_PROMT: 'Would you like me to remind you about this event an hour before it starts? ',
-    NO_REMINDER_PROMT: 'Okay. ' + 'You can say Next to hear the next one OR say Stop to quit.',
     REPEAT_CITY_NAME: 'Oh. Let\'s give it another try. Can you tell me the name of your city once again?',
     REPEAT_CITY_NAME_RE: 'Can you please tell me the name of your city once again?',
     CHANGE_CITY: 'Okay. Do you want me to look for events in some other city?',
@@ -33,9 +28,20 @@ global.messages =
     INTERESTING_RE: 'Does this event sound interesting?'
   };
 
-global.interesting = [ 'Does this event sound interesting?', 'Does this looks interesting?', 'Want to know more about it?', 'Should I tell you more about this one?']
-global.fetchNextThree = [ 'Okay. Should I tell you few more events?', 'Do you want to listen to more events?', 'Want to know more such events?', 'Do you want me to continue with the events?']
-global.cityConfirm = [ 'Okay. Just to confirm. Do you want me to look for events in ', 'Did you said, ', 'Just confirming. Do you want me to look for events in ']
+global.interesting = [ 'Does this event sound interesting?',
+                       'Does this looks interesting?',
+                       'Want to know more about it?',
+                       'Should I tell you more about this one?']
+global.fetchNextThree = [ 'Okay. Should I tell you few more events?',
+                          'Do you want to listen to more events?',
+                          'Want to know more such events?',
+                          'Do you want me to continue with the events?']
+global.cityConfirm = [ 'Okay. Just to confirm. Do you want me to look for events in ',
+                        'Did you said, ',
+                        'Just confirming. Do you want me to look for events in ']
+global.goodbye = [ 'Alright! Have fun then. Bye',
+                    'Okay. Come back tomorrow to find more interesting events! Bye.',
+                    'Alright. Thanks for using My Events. Bye']
 
 global.PERMISSIONS = ['alexa::alerts:reminders:skill:readwrite'];
 global.CATEGORIES = 'concerts,sports,festivals,performing-arts';

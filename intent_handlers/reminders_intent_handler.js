@@ -93,11 +93,13 @@ const CreateReminderWithConsentIntent = {
 async function createReminderForEvent(event, handlerInput){
 
   let timezone = event.timezone;
+  let locale = handlerInput.requestEnvelope.locale;
   let startDate = ""+ Utils.getReminderDate(event.start, timezone);
   let reminderTime = "" + Utils.getReminderTime(event.start, timezone);
   let reminderDate = "" + Utils.getReminderDateForText(event.start, timezone);
   startDate = startDate.substring(0,startDate.length - 1);
 
+  console.log("Locale: " + locale);
   console.log("Event start Date: " + startDate);
   console.log("Event start time: " + reminderTime);
   console.log("Event start time: " + reminderDate);
@@ -125,7 +127,7 @@ async function createReminderForEvent(event, handlerInput){
         alertInfo: {
           spokenInfo: {
             content: [{
-              locale: 'en-IN',
+              locale: locale,
               text: event.title + " starts in one hour at " + Utils.getEventTime(event.start, timezone),
             }],
           },

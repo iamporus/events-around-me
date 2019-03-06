@@ -460,68 +460,70 @@ const GetEventByDateIntent = {
                 let slots = request.intent.slots;
                 //User wants to know events on an exact date.
                 console.log("date slot..."+ slots.event_date.value);
-                if(typeof slots.event_date.value !== 'undefined' && slots.event_date.value){
-                    let date = slots.event_date.value;
-                    let parsedDate = Utils.getDateFromSlot(date);
-                    startDate = parsedDate.startDate;
-                    endDate = parsedDate.endDate;
-                    console.log("parsed date..."+ parsedDate);
+                let date;
+                if(typeof slots.event_date.value == 'undefined'){
+                    date = new Date();
+                }
+                date = slots.event_date.value;
+                let parsedDate = Utils.getDateFromSlot(date);
+                startDate = parsedDate.startDate;
+                endDate = parsedDate.endDate;
+                console.log("parsed date..."+ parsedDate);
 
-                    const response = await EventsHelper.getEventsAroundUser(attributes.user.lat,
-                        attributes.user.lng,
-                        attributes.user.country,
-                        category, startDate, endDate);
+                const response = await EventsHelper.getEventsAroundUser(attributes.user.lat,
+                    attributes.user.lng,
+                    attributes.user.country,
+                    category, startDate, endDate);
 
-                    if(response.count > 0){
-                        console.log("Events around me: " + response.count);
+                if(response.count > 0){
+                    console.log("Events around me: " + response.count);
 
-                        //save the response in the session for handling next/previous intent
-                        attributes.events = response;
-                        attributes.index = 0;
+                    //save the response in the session for handling next/previous intent
+                    attributes.events = response;
+                    attributes.index = 0;
 
-                        handlerInput.attributesManager.setSessionAttributes(attributes);
+                    handlerInput.attributesManager.setSessionAttributes(attributes);
 
-                        var speech = new Speech();
+                    var speech = new Speech();
 
-                        if(response.count == 1){
+                    if(response.count == 1){
 
-                            attributes.action_to_perform = ActionToPerform.CREATE_REMINDER;
+                        attributes.action_to_perform = ActionToPerform.CREATE_REMINDER;
 
-                            speech.say('Okay. I found just one event happening on '+ Utils.getDateWithoutYear(startDate) + '. Here\'s how it goes. ')
-                            .pause('1s')
-                            .say(Utils.getShortEventDescription(response.results[0]))
-                            .pause('1s')
-                            .say(' ' + messages.REMINDER_PROMT);
-                        }else{
+                        speech.say('Okay. I found just one event happening on '+ Utils.getDateWithoutYear(startDate) + '. Here\'s how it goes. ')
+                        .pause('1s')
+                        .say(Utils.getShortEventDescription(response.results[0]))
+                        .pause('1s')
+                        .say(' ' + messages.REMINDER_PROMT);
+                    }else{
 
-                            attributes.action_to_perform = ActionToPerform.EVENT_DETAILS;
+                        attributes.action_to_perform = ActionToPerform.EVENT_DETAILS;
 
-                            speech.say('Alright. Here are some events that I found on '+ Utils.getDateWithoutYear(startDate) + '. Here\'s the first one. ')
-                            .pause('1s')
-                            .say(Utils.getShortEventDescription(response.results[0]))
-                            .pause('1s')
-                            .say(' ' + Utils.randomize(interesting));
-                        }
-
-                        var speechOutput = speech.ssml(true);
-
-                        return handlerInput.responseBuilder
-                            .speak(speechOutput)
-                            .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
-                            .getResponse();
+                        speech.say('Alright. Here are some events that I found on '+ Utils.getDateWithoutYear(startDate) + '. Here\'s the first one. ')
+                        .pause('1s')
+                        .say(Utils.getShortEventDescription(response.results[0]))
+                        .pause('1s')
+                        .say(' ' + Utils.randomize(interesting));
                     }
-                    else{
 
-                        //Ask whether he wants to look events in other city
-                        attributes.action_to_perform = ActionToPerform.EVENT_LOOKUP_NEW_CITY;
+                    var speechOutput = speech.ssml(true);
 
-                        handlerInput.attributesManager.setSessionAttributes(attributes);
+                    return handlerInput.responseBuilder
+                        .speak(speechOutput)
+                        .reprompt(messages.DETAILS_OR_NEXT_REPROMPT)
+                        .getResponse();
+                }
+                else{
 
-                        return handlerInput.responseBuilder
-                            .speak("Sorry. I could not find any events on "+ Utils.getDateWithoutYear(startDate) +". " + messages.CHANGE_CITY_RE)
-                            .reprompt(messages.CHANGE_CITY_RE)
-                            .getResponse();
-                    }
+                    //Ask whether he wants to look events in other city
+                    attributes.action_to_perform = ActionToPerform.EVENT_LOOKUP_NEW_CITY;
+
+                    handlerInput.attributesManager.setSessionAttributes(attributes);
+
+                    return handlerInput.responseBuilder
+                        .speak("Sorry. I could not find any events on "+ Utils.getDateWithoutYear(startDate) +". " + messages.CHANGE_CITY_RE)
+                        .reprompt(messages.CHANGE_CITY_RE)
+                        .getResponse();
                 }
             }
         }else{

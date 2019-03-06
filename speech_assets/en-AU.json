@@ -1,0 +1,164 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "my events",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": [
+                        "cancel"
+                    ]
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": [
+                        "tell me the instructions",
+                        "how can you help me",
+                        "How can I use this"
+                    ]
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": [
+                        "stop"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.YesIntent",
+                    "samples": [
+                        "yes thanks",
+                        "that will do",
+                        "you heard me",
+                        "right",
+                        "yes please",
+                        "absolutely",
+                        "sure thing",
+                        "yep",
+                        "Yeah sure",
+                        "Yes"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NoIntent",
+                    "samples": [
+                        "nõo",
+                        "nope",
+                        "nowe",
+                        "noo",
+                        "no"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NextIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.PreviousIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.RepeatIntent",
+                    "samples": [
+                        "start over please",
+                        "can you start over please",
+                        "can you repeat everything",
+                        "start from the beginning",
+                        "repeat",
+                        "start over"
+                    ]
+                },
+                {
+                    "name": "DetailsEventIntent",
+                    "slots": [
+                        {
+                            "name": "event_name",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "when is {event_name} ",
+                        "give me details",
+                        "tell me more about this",
+                        "details",
+                        "when is {event_name} scheduled",
+                        "when is {event_name} starting",
+                        "tell me about {event_name}",
+                        "tell me details about {event_name}",
+                        "details please",
+                        "tell me more about this one",
+                        "tell me more about this event",
+                        "give me details about it",
+                        "show me the details on this one"
+                    ]
+                },
+                {
+                    "name": "RandomEventIntent",
+                    "slots": [],
+                    "samples": [
+                        "give me another one",
+                        "just give me one event",
+                        "tell me one interesting event",
+                        "give me one interesting event",
+                        "give me a random event",
+                        "suggest me an event"
+                    ]
+                },
+                {
+                    "name": "CreateReminderWithConsentIntent",
+                    "slots": [],
+                    "samples": [
+                        "create a reminder for this one",
+                        "remind me about this event",
+                        "remind me",
+                        "remind me about this one"
+                    ]
+                },
+                {
+                    "name": "GetCityNameIntent",
+                    "slots": [
+                        {
+                            "name": "city_name",
+                            "type": "AMAZON.City"
+                        }
+                    ],
+                    "samples": [
+                        "tell me all the action in {city_name}",
+                        "whats happening in {city_name} ",
+                        "tell me the events in {city_name}",
+                        "i'm from {city_name}",
+                        "my home is in {city_name}",
+                        "i stay in {city_name}",
+                        "yes. i live in {city_name}",
+                        "i live in {city_name}",
+                        "{city_name}"
+                    ]
+                },
+                {
+                    "name": "GetEventByDateIntent",
+                    "slots": [
+                        {
+                            "name": "event_date",
+                            "type": "AMAZON.DATE"
+                        }
+                    ],
+                    "samples": [
+                        "tell me all the events",
+                        "whats happening on {event_date}",
+                        "tell me events on coming {event_date}",
+                        "tell me events on this {event_date}",
+                        "tell me events on {event_date}",
+                        "give me events for {event_date}",
+                        "tell me {event_date} events",
+                        "whats happening {event_date}",
+                        "give me {event_date} events"
+                    ]
+                }
+            ],
+            "types": []
+        }
+    }
+}

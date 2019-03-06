@@ -109,7 +109,7 @@ const StopIntent = {
   },
   handle(handlerInput) {
     return handlerInput.responseBuilder
-      .speak(messages.NAVIGATE_HOME)
+      .speak(Utils.randomize(goodbye))
       .getResponse();
   },
 };

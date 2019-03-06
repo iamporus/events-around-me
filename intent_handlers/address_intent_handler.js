@@ -159,7 +159,7 @@ const GetCityNameIntent = {
             let city_name = slots.city_name.value;
             console.log("Got this city from user..."+ city_name);
             //This is a hack for addressing issue where user says no to any action and Alexa cloud considers it as GetCityNameIntent
-            if(city_name === 'nõo' || city_name === 'nowe' || city_name === 'now' || city_name === 'noo'){
+            if(city_name === 'no' || city_name === 'nope' || city_name === 'nõo' || city_name === 'nowe' || city_name === 'now' || city_name === 'noo'){
                 console.log("False Intent... Redirecting to NoIntent..." );
                 return DefaultIntents.NoIntent.handle(handlerInput);
             }
